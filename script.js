@@ -65,14 +65,14 @@ function blockNonNumericInput() {
   // Philippine mobile number: keep the grouping guide visible while the user types.
   if (contactField) {
     const formatMobile = function (value) {
-      const digits = String(value || "").replace(/\\D/g, "").slice(0, 11);
+      const digits = String(value || "").replace(/\D/g, "").slice(0, 11);
       if (digits.length <= 4) return digits;
       if (digits.length <= 7) return digits.slice(0, 4) + " " + digits.slice(4);
       return digits.slice(0, 4) + " " + digits.slice(4, 7) + " " + digits.slice(7);
     };
 
     const digitCountBeforeCaret = function (value, caret) {
-      return value.slice(0, caret).replace(/\\D/g, "").length;
+      return value.slice(0, caret).replace(/\D/g, "").length;
     };
 
     const moveCaretAfterDigits = function (field, count) {
@@ -84,7 +84,7 @@ function blockNonNumericInput() {
       let digitsSeen = 0;
       let position = field.value.length;
       for (let i = 0; i < field.value.length; i += 1) {
-        if (/\\d/.test(field.value[i])) digitsSeen += 1;
+        if (/\d/.test(field.value[i])) digitsSeen += 1;
         if (digitsSeen === count) {
           position = i + 1;
           break;
