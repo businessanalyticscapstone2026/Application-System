@@ -68,13 +68,17 @@
         <input
           id="application-id-input"
           type="text"
-          value="OSCA"
-          placeholder="Enter the remaining ID"
+          placeholder="OSCA######"
           autocomplete="off"
           spellcheck="false"
           autocapitalize="characters"
+          maxlength="10"
+          pattern="OSCA[0-9]{6}"
           aria-label="Application ID"
+          aria-describedby="application-id-help"
+          inputmode="text"
         >
+        <small id="application-id-help" class="verify-field-help">Enter the 6 digits after OSCA (example: OSCA260163).</small>
 
         <p
           id="application-id-error"
