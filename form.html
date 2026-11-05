@@ -1051,9 +1051,51 @@
           { title: "Health and community", short: "Health" },
           { title: "Documents and consent", short: "Documents" }
         ];
-        const completedSteps = new Set();
+        // Restore section navigation progress for this browser session.
+        // Draft fields/files remain governed by the existing draft system;
+        // this only restores which sections the applicant already reached.
+        const navigationProgressKey = (() => {
+          const params = new URLSearchParams(window.location.search);
+          const applicationId = params.get("id");
+          const sessionId = params.get("session");
+          const mode = params.get("mode") || "new";
+          const identity = applicationId || sessionId || "new";
+          return `applicationFormNavigation:${mode}:${identity}`;
+        })();
+        let savedNavigationProgress = {};
+        try {
+          savedNavigationProgress = JSON.parse(
+            sessionStorage.getItem(navigationProgressKey) || "{}"
+          );
+        } catch (error) {
+          savedNavigationProgress = {};
+        }
+        const completedSteps = new Set(
+          Array.isArray(savedNavigationProgress.completed)
+            ? savedNavigationProgress.completed.filter(index => Number.isInteger(index) && index >= 0 && index < 6)
+            : []
+        );
         const unlockedSteps = new Set([0]);
+        if (Array.isArray(savedNavigationProgress.unlocked)) {
+          savedNavigationProgress.unlocked.forEach(index => {
+            if (Number.isInteger(index) && index >= 0 && index < 6) unlockedSteps.add(index);
+          });
+        }
+        // A completed step is necessarily reachable, even if an older
+        // or partially written session record omitted it from unlocked.
+        completedSteps.forEach(index => unlockedSteps.add(index));
         let currentStepIndex = 0;
+
+        function saveNavigationProgress() {
+          try {
+            sessionStorage.setItem(navigationProgressKey, JSON.stringify({
+              completed: [...completedSteps],
+              unlocked: [...unlockedSteps]
+            }));
+          } catch (error) {
+            console.warn("Unable to save application section progress:", error);
+          }
+        }
         let sheetPreviousBodyOverflow = "";
         let sheetCloseTimer;
         const progressSegments = stepInfo.map((step, index) => {
@@ -1329,6 +1371,7 @@
 
           if (index < groups.length - 1) {
             unlockedSteps.add(index + 1);
+            saveNavigationProgress();
             showStep(index + 1, true);
           } else {
             document.querySelector(".btn.submit")?.click();
@@ -1374,7 +1417,7 @@
         });
         sheetStepButtons.forEach((row, index) => row.addEventListener("click", () => {
           if (index === currentStepIndex) return closeSectionsSheet();
-          if (completedSteps.has(index)) {
+          if (unlockedSteps.has(index)) {
             showStep(index, true);
             closeSectionsSheet();
           }
@@ -1410,8 +1453,12 @@
           const stepIndex = steps.findIndex(step => step.contains(event.target));
           if (stepIndex >= 0 && completedSteps.has(stepIndex) && !validateStep(stepIndex, false)) {
             completedSteps.delete(stepIndex);
+            saveNavigationProgress();
             showStep(currentStepIndex);
-          } else updateActionHint();
+          } else {
+            saveNavigationProgress();
+            updateActionHint();
+          }
         };
         card.addEventListener("input", () => {
           updateActionHint();

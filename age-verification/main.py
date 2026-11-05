@@ -168,121 +168,85 @@ def calculate_age(
 # DOB EXTRACTION
 # =====================================================
 
-def extract_birth_date_from_text(
-    text
-):
-
+def extract_birth_date_from_text(text, expected_birth_date=None):
+    """
+    Extract DOB from OCR text. Prefer a date near an explicit DOB
+    label. If OCR loses layout/labels, accept a unique match to the
+    DOB entered by the applicant rather than guessing from other dates.
+    """
     if not text:
         return None
 
+    normalized = re.sub(r"\s+", " ", str(text)).strip()
 
-    normalized = re.sub(
-        r"\s+",
-        " ",
-        text
+    def parse_candidate(value):
+        value = re.sub(r"\s+", " ", value.strip())
+        value = re.sub(r"(?<=\d)[Oo](?=\d)", "0", value)
+        value = re.sub(r"(?<=\d)[Il](?=\d)", "1", value)
+        formats = (
+            "%B %d, %Y", "%b %d, %Y",
+            "%B %d %Y", "%b %d %Y",
+            "%m/%d/%Y", "%d/%m/%Y",
+            "%m-%d-%Y", "%d-%m-%Y",
+            "%Y-%m-%d"
+        )
+        for date_format in formats:
+            try:
+                return datetime.strptime(value, date_format).date()
+            except ValueError:
+                pass
+        return None
+
+    date_pattern = re.compile(
+        r"(?i)\b(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},?\s+\d{4}\b"
+        r"|\b\d{1,2}[/-]\d{1,2}[/-]\d{4}\b"
+        r"|\b\d{4}-\d{2}-\d{2}\b"
     )
 
-
-    # -------------------------------------------------
-    # Month-name format
-    #
-    # Example:
-    # November 05, 2005
-    # July 10, 1966
-    # -------------------------------------------------
-
-    month_pattern = re.compile(
-        r"\b("
-        r"January|February|March|April|"
-        r"May|June|July|August|September|"
-        r"October|November|December"
-        r")"
-        r"\s+"
-        r"(\d{1,2})"
-        r",?"
-        r"\s+"
-        r"(\d{4})"
-        r"\b",
-        re.IGNORECASE
-    )
-
-
-    month_matches = (
-        month_pattern.findall(
-            normalized
-        )
-    )
-
-
-    for (
-        month,
-        day,
-        year
-    ) in month_matches:
-
-        candidate = (
-            f"{month} "
-            f"{day}, "
-            f"{year}"
-        )
-
-
-        parsed = (
-            parse_birth_date(
-                candidate
-            )
-        )
-
-
+    candidates = []
+    for match in date_pattern.finditer(normalized):
+        parsed = parse_candidate(match.group(0))
         if parsed:
-            return parsed
+            candidates.append((match.start(), match.end(), parsed))
 
+    if not candidates:
+        return None
 
-    # -------------------------------------------------
-    # YYYY-MM-DD
-    # -------------------------------------------------
-
-    matches = re.findall(
-        r"\b\d{4}-\d{2}-\d{2}\b",
+    labels = list(re.finditer(
+        r"(?i)\b(?:date\s+of\s+birth|birth\s+date|birthdate|dob)\b",
         normalized
-    )
+    ))
+    for label in labels:
+        nearby = [
+            (abs(pos - label.end()), parsed)
+            for pos, end, parsed in candidates
+            if pos >= label.end() - 8 and pos <= label.end() + 90
+        ]
+        if nearby:
+            nearby.sort(key=lambda item: item[0])
+            return nearby[0][1]
 
-
-    for candidate in matches:
-
-        parsed = (
-            parse_birth_date(
-                candidate
-            )
+    # Month-name formats (as printed on this Philippine National ID)
+    # are unambiguous and can be safely recognized even when OCR loses
+    # the nearby field label.
+    month_name_dates = [
+        parsed for pos, end, parsed in candidates
+        if re.match(
+            r"(?i)(?:January|February|March|April|May|June|July|August|September|October|November|December)",
+            normalized[pos:end]
         )
+    ]
+    if len(month_name_dates) == 1:
+        return month_name_dates[0]
 
-
-        if parsed:
-            return parsed
-
-
-    # -------------------------------------------------
-    # Numeric slash date
-    # -------------------------------------------------
-
-    matches = re.findall(
-        r"\b\d{1,2}/\d{1,2}/\d{4}\b",
-        normalized
-    )
-
-
-    for candidate in matches:
-
-        parsed = (
-            parse_birth_date(
-                candidate
-            )
-        )
-
-
-        if parsed:
-            return parsed
-
+    # For numeric-only dates, require a unique match with the submitted DOB.
+    if expected_birth_date:
+        matching_dates = {
+            parsed for _, _, parsed in candidates
+            if parsed == expected_birth_date
+        }
+        if len(matching_dates) == 1:
+            return next(iter(matching_dates))
 
     return None
 
@@ -521,7 +485,8 @@ async def verify_age(
 
     detected_birth_date = (
         extract_birth_date_from_text(
-            ocr_text
+            ocr_text,
+            expected_birth_date=entered_birth_date
         )
     )
 
