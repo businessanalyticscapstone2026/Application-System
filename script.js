@@ -236,134 +236,217 @@ function setupSpecifyForSelects() {
 
 function setupUploadButtons() {
   const uploadInputs = document.querySelectorAll('.upload-input:not(#upload-verification)');
-  // file preview modal elements
   const filePreviewModal = document.getElementById("file-preview-modal");
   const previewImage = document.getElementById("file-preview-image");
   const previewIframe = document.getElementById("file-preview-iframe");
   const previewClose = document.getElementById("file-preview-close");
 
+  const cropModal = document.getElementById("image-crop-modal");
+  const cropImage = document.getElementById("image-crop-target");
+  const cropApply = document.getElementById("image-crop-apply");
+  const cropOriginal = document.getElementById("image-crop-original");
+  const cropClose = document.getElementById("image-crop-close");
+
   let currentPreviewUrl = null;
+  let currentCropUrl = null;
+  let currentCropper = null;
+  let cropInput = null;
+  let cropOriginalFile = null;
 
   const closePreview = function () {
-    if (currentPreviewUrl) {
-      URL.revokeObjectURL(currentPreviewUrl);
-      currentPreviewUrl = null;
-    }
+    if (currentPreviewUrl) URL.revokeObjectURL(currentPreviewUrl);
+    currentPreviewUrl = null;
     if (filePreviewModal) {
       filePreviewModal.hidden = true;
       filePreviewModal.setAttribute("aria-hidden", "true");
     }
-    if (previewImage) {
-      previewImage.hidden = true;
-      previewImage.src = "";
-    }
-    if (previewIframe) {
-      previewIframe.hidden = true;
-      previewIframe.src = "";
-    }
+    if (previewImage) { previewImage.hidden = true; previewImage.src = ""; }
+    if (previewIframe) { previewIframe.hidden = true; previewIframe.src = ""; }
     currentInputForReplace = null;
   };
+
+  const closeCrop = function () {
+    if (currentCropper) currentCropper.destroy();
+    currentCropper = null;
+    if (currentCropUrl) URL.revokeObjectURL(currentCropUrl);
+    currentCropUrl = null;
+    if (cropModal) {
+      cropModal.hidden = true;
+      cropModal.setAttribute("aria-hidden", "true");
+    }
+    if (cropImage) cropImage.src = "";
+    cropInput = null;
+    cropOriginalFile = null;
+  };
+
+  const finishCrop = function (file) {
+    if (!cropInput || !file) return;
+    const transfer = new DataTransfer();
+    transfer.items.add(file);
+    cropInput.files = transfer.files;
+    const input = cropInput;
+    closeCrop();
+    input.dispatchEvent(new Event("change", { bubbles: true }));
+  };
+
+  const openCrop = function (input, file) {
+    if (!cropModal || !cropImage || typeof window.Cropper === "undefined") return false;
+    cropInput = input;
+    cropOriginalFile = file;
+    currentCropUrl = URL.createObjectURL(file);
+    cropImage.onload = function () {
+      currentCropper = new Cropper(cropImage, {
+        viewMode: 1,
+        dragMode: "move",
+        autoCropArea: 0.92,
+        responsive: true,
+        restore: false,
+        guides: true,
+        center: true,
+        highlight: true,
+        background: false,
+        movable: true,
+        zoomable: true,
+        zoomOnTouch: true,
+        zoomOnWheel: true,
+        rotatable: true,
+        scalable: false,
+        aspectRatio: NaN,
+        checkOrientation: true
+      });
+    };
+    cropImage.src = currentCropUrl;
+    cropModal.hidden = false;
+    cropModal.setAttribute("aria-hidden", "false");
+    return true;
+  };
+
+  if (cropApply) {
+    cropApply.addEventListener("click", function () {
+      if (!currentCropper || !cropOriginalFile) return;
+      const canvas = currentCropper.getCroppedCanvas({
+        maxWidth: 3000,
+        maxHeight: 3000,
+        imageSmoothingEnabled: true,
+        imageSmoothingQuality: "high"
+      });
+      if (!canvas) return;
+      const originalType = cropOriginalFile.type || "image/jpeg";
+      const outputType = ["image/jpeg", "image/png", "image/webp"].includes(originalType)
+        ? originalType : "image/jpeg";
+      canvas.toBlob(function (blob) {
+        if (!blob) return;
+        const extension = outputType === "image/png" ? "png" : outputType === "image/webp" ? "webp" : "jpg";
+        const baseName = (cropOriginalFile.name || "uploaded-image").replace(/\.[^.]+$/, "");
+        const croppedFile = new File([blob], baseName + "-cropped." + extension, {
+          type: outputType,
+          lastModified: Date.now()
+        });
+        finishCrop(croppedFile);
+      }, outputType, outputType === "image/jpeg" ? 0.94 : undefined);
+    });
+  }
+
+  if (cropOriginal) cropOriginal.addEventListener("click", function () {
+    if (cropInput && cropOriginalFile) finishCrop(cropOriginalFile);
+  });
+  if (cropClose) cropClose.addEventListener("click", function () {
+    closeCrop();
+  });
+  if (cropModal) cropModal.addEventListener("click", function (event) {
+    if (event.target === cropModal) closeCrop();
+  });
 
   if (previewClose) {
     previewClose.addEventListener("click", closePreview);
     filePreviewModal?.addEventListener("click", (event) => {
-      if (event.target === filePreviewModal) {
-        closePreview();
-      }
+      if (event.target === filePreviewModal) closePreview();
     });
-
     document.addEventListener("keydown", (event) => {
-      if (
-        event.key === "Escape" &&
-        filePreviewModal &&
-        !filePreviewModal.hidden
-      ) {
-        closePreview();
-      }
+      if (event.key === "Escape" && cropModal && !cropModal.hidden) closeCrop();
+      else if (event.key === "Escape" && filePreviewModal && !filePreviewModal.hidden) closePreview();
     });
   }
 
   uploadInputs.forEach(function (inputElement) {
     const uploadBox = inputElement.nextElementSibling;
-    if (!uploadBox || !uploadBox.classList.contains("upload-box")) {
-      return;
-    }
+    if (!uploadBox || !uploadBox.classList.contains("upload-box")) return;
 
     const fileNameLabel = uploadBox.querySelector(".upload-file-name");
-    const actions = uploadBox.nextElementSibling && uploadBox.nextElementSibling.classList.contains('upload-actions') ? uploadBox.nextElementSibling : null;
-    const viewBtn = actions ? actions.querySelector('.view-btn') : null;
-    const changeBtn = actions ? actions.querySelector('.change-btn') : null;
+    const actions = uploadBox.nextElementSibling && uploadBox.nextElementSibling.classList.contains("upload-actions")
+      ? uploadBox.nextElementSibling : null;
+    const viewBtn = actions ? actions.querySelector(".view-btn") : null;
+    const changeBtn = actions ? actions.querySelector(".change-btn") : null;
+
+    let thumbnailUrl = null;
+    let thumbnail = uploadBox.querySelector(".upload-thumbnail");
+    if (!thumbnail) {
+      thumbnail = document.createElement("img");
+      thumbnail.className = "upload-thumbnail";
+      thumbnail.alt = "Selected document preview";
+      thumbnail.hidden = true;
+      uploadBox.insertBefore(thumbnail, fileNameLabel || null);
+    }
 
     const updateButtonsState = function () {
-      const hasFile = inputElement.files && inputElement.files.length > 0;
+      const file = inputElement.files && inputElement.files[0];
+      const hasFile = Boolean(file);
       if (fileNameLabel) {
-        fileNameLabel.textContent = hasFile ? inputElement.files[0].name : 'No file selected';
-        if (hasFile) {
-          uploadBox.classList.add('has-file');
+        fileNameLabel.textContent = !hasFile
+          ? "No file selected"
+          : (file.type && file.type.startsWith("image/") ? "Image selected · tap View to inspect" : file.type === "application/pdf" ? "PDF document selected" : "File selected");
+      }
+      if (thumbnailUrl) URL.revokeObjectURL(thumbnailUrl);
+      thumbnailUrl = null;
+      if (thumbnail) {
+        if (hasFile && file.type && file.type.startsWith("image/")) {
+          thumbnailUrl = URL.createObjectURL(file);
+          thumbnail.src = thumbnailUrl;
+          thumbnail.hidden = false;
         } else {
-          uploadBox.classList.remove('has-file');
+          thumbnail.hidden = true;
+          thumbnail.removeAttribute("src");
         }
       }
-      if (viewBtn) {
-        viewBtn.hidden = !hasFile;
-        viewBtn.disabled = !hasFile;
-      }
-      if (changeBtn) {
-        changeBtn.hidden = !hasFile;
-      }
+      uploadBox.classList.toggle("has-file", hasFile);
+      if (viewBtn) { viewBtn.hidden = !hasFile; viewBtn.disabled = !hasFile; }
+      if (changeBtn) changeBtn.hidden = !hasFile;
     };
 
-    // initial state
     updateButtonsState();
 
-    inputElement.addEventListener("change", function () {
+    inputElement.addEventListener("change", function (event) {
+      const file = inputElement.files && inputElement.files[0];
+      if (event.isTrusted && file && file.type && file.type.startsWith("image/")) {
+        if (openCrop(inputElement, file)) return;
+      }
       updateButtonsState();
     });
 
     if (viewBtn) {
-      viewBtn.addEventListener('click', function () {
-        if (!inputElement.files || inputElement.files.length === 0) return;
-        const file = inputElement.files[0];
+      viewBtn.addEventListener("click", function () {
+        const file = inputElement.files && inputElement.files[0];
         if (!file) return;
-
-        // prepare preview
-        if (currentPreviewUrl) {
-          URL.revokeObjectURL(currentPreviewUrl);
-          currentPreviewUrl = null;
-        }
+        if (currentPreviewUrl) URL.revokeObjectURL(currentPreviewUrl);
         currentPreviewUrl = URL.createObjectURL(file);
-
-        if (file.type && file.type.startsWith('image/')) {
+        if (file.type && file.type.startsWith("image/")) {
           if (previewIframe) previewIframe.hidden = true;
-          if (previewImage) {
-            previewImage.src = currentPreviewUrl;
-            previewImage.hidden = false;
-          }
-        } else if (file.type === 'application/pdf') {
+          if (previewImage) { previewImage.src = currentPreviewUrl; previewImage.hidden = false; }
+        } else if (file.type === "application/pdf") {
           if (previewImage) previewImage.hidden = true;
-          if (previewIframe) {
-            previewIframe.src = currentPreviewUrl;
-            previewIframe.hidden = false;
-          }
+          if (previewIframe) { previewIframe.src = currentPreviewUrl; previewIframe.hidden = false; }
         } else {
-          // fallback: show download link by opening in new tab
-          window.open(currentPreviewUrl, '_blank');
+          window.open(currentPreviewUrl, "_blank");
           return;
         }
-
         if (filePreviewModal) {
           filePreviewModal.hidden = false;
-          filePreviewModal.setAttribute('aria-hidden', 'false');
+          filePreviewModal.setAttribute("aria-hidden", "false");
         }
       });
     }
 
-    if (changeBtn) {
-      changeBtn.addEventListener('click', function () {
-        inputElement.click();
-      });
-    }
-
+    if (changeBtn) changeBtn.addEventListener("click", function () { inputElement.click(); });
     uploadBox.addEventListener("keydown", function (event) {
       if (event.key === "Enter" || event.key === " ") {
         event.preventDefault();

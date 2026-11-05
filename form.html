@@ -10,6 +10,7 @@
     >
     <link rel="stylesheet" href="style.css" />
     <link rel="stylesheet" href="form-reference.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css" />
   </head>
   <body class="application-form-page">
     <div class="page-frame">
@@ -764,6 +765,7 @@
       </section>
     </main>
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js" defer></script>
     <script src="script.js"></script>
     <script>
       document.addEventListener("DOMContentLoaded", () => {
@@ -1513,6 +1515,23 @@
         showStep(0);
       });
     </script>
+    <div id="image-crop-modal" class="image-crop-modal" hidden aria-hidden="true">
+      <section class="image-crop-dialog" role="dialog" aria-modal="true" aria-labelledby="image-crop-title">
+        <header class="image-crop-head">
+          <div>
+            <h3 id="image-crop-title">Adjust your image</h3>
+            <p>Drag to reposition and use the handles to crop. Keep all important document details inside the frame.</p>
+          </div>
+          <button id="image-crop-close" class="camera-close" type="button" aria-label="Close crop tool"><span class="material-symbols-outlined" aria-hidden="true">close</span></button>
+        </header>
+        <div class="image-crop-stage"><img id="image-crop-target" alt="Image to crop" /></div>
+        <footer class="image-crop-actions">
+          <button id="image-crop-original" class="btn cancel" type="button">Keep Original</button>
+          <button id="image-crop-apply" class="table-btn" type="button">Use Cropped Image</button>
+        </footer>
+      </section>
+    </div>
+
     <div id="file-preview-modal" class="file-preview-modal" hidden aria-hidden="true">
       <div class="file-preview-dialog" role="dialog" aria-modal="true" aria-labelledby="file-preview-title">
         <div class="file-preview-head">
@@ -1530,7 +1549,7 @@
     <div id="success-notification-overlay" class="notification-overlay" hidden>
       <div id="success-notification" class="notification-card" role="status" aria-live="polite">
         <div class="notification-body">
-          <div id="notification-icon" class="notification-icon">âœ”</div>
+          <div id="notification-icon" class="notification-icon notification-icon-success"><span class="material-symbols-outlined" aria-hidden="true">check_circle</span></div>
           <div>
             <strong id="notification-title" class="notification-title">Submission Successful</strong>
             <p id="notification-message">Your application has been submitted successfully.</p>
@@ -1551,9 +1570,7 @@
       >
         <div class="notification-body">
 
-          <div class="notification-icon notification-icon-error">
-            âš 
-          </div>
+          <div class="notification-icon notification-icon-error"><span class="material-symbols-outlined" aria-hidden="true">warning</span></div>
 
           <div>
             <strong
