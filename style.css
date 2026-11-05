@@ -7568,102 +7568,82 @@ body.verify-page #verify-request-id-modal .verify-close-inline:focus-visible {
 /* =====================================================
    MOBILE FORM POLISH: CHECKBOXES, CAPTCHA AND UPLOADS
    ===================================================== */
+/* Native checkbox rendering restores the standard visible checkmark on mobile. */
 body.application-form-page input[type="checkbox"],
 body.registration-page input[type="checkbox"] {
-  appearance: none;
-  -webkit-appearance: none;
-  position: relative;
-  display: inline-grid;
-  place-items: center;
-  width: 23px;
-  height: 23px;
-  min-width: 23px;
-  max-width: 23px;
-  min-height: 23px;
-  max-height: 23px;
-  flex: 0 0 23px;
-  margin: 2px 0 0;
-  padding: 0;
-  border: 2px solid #9aafbf;
-  border-radius: 6px;
-  background: #fff;
-  box-shadow: 0 1px 2px rgba(15, 40, 60, .08);
-  cursor: pointer;
-  transition: background .16s ease, border-color .16s ease, box-shadow .16s ease, transform .16s ease;
+  appearance: auto !important;
+  -webkit-appearance: checkbox !important;
+  display: inline-block !important;
+  width: 24px !important;
+  height: 24px !important;
+  min-width: 24px !important;
+  max-width: 24px !important;
+  min-height: 24px !important;
+  max-height: 24px !important;
+  flex: 0 0 24px !important;
+  padding: 0 !important;
+  margin: 2px 0 0 !important;
+  accent-color: #0b827a;
+  vertical-align: middle;
+  outline: none !important;
+  box-shadow: none !important;
 }
-body.application-form-page input[type="checkbox"]:hover,
-body.registration-page input[type="checkbox"]:hover {
-  border-color: #0b7d78;
-}
-body.application-form-page input[type="checkbox"]:checked,
-body.registration-page input[type="checkbox"]:checked {
-  border-color: #0b827a;
-  background: #0b827a;
-  box-shadow: 0 2px 5px rgba(11, 130, 122, .2);
-}
-body.application-form-page input[type="checkbox"]:checked::after,
-body.registration-page input[type="checkbox"]:checked::after {
-  content: "";
-  width: 10px;
-  height: 6px;
-  margin-top: -2px;
-  border-left: 2.5px solid #fff;
-  border-bottom: 2.5px solid #fff;
-  transform: rotate(-45deg);
-}
+body.application-form-page input[type="checkbox"]:focus,
 body.application-form-page input[type="checkbox"]:focus-visible,
+body.registration-page input[type="checkbox"]:focus,
 body.registration-page input[type="checkbox"]:focus-visible {
-  outline: 3px solid rgba(11, 130, 122, .2);
-  outline-offset: 2px;
-  box-shadow: 0 0 0 2px #fff, 0 0 0 5px rgba(11, 130, 122, .25);
+  outline: none !important;
+  box-shadow: none !important;
 }
 body.application-form-page .check-option {
+  display: flex;
   align-items: center;
   min-height: 48px;
   padding: 10px 12px;
   border: 1px solid #dce7ed;
   border-radius: 12px;
   background: #fbfdfe;
-  transition: border-color .16s ease, background .16s ease, box-shadow .16s ease;
+  transition: border-color .16s ease, background .16s ease;
 }
 body.application-form-page .check-option:has(input:checked) {
-  border-color: #77b9b0;
-  background: #eff9f7;
-  box-shadow: inset 3px 0 0 #0b827a;
+  border-color: #dce7ed;
+  background: #fbfdfe;
+  box-shadow: none;
 }
-body.application-form-page .checkbox-options {
-  gap: 9px 12px;
-}
+body.application-form-page .checkbox-options { gap: 9px 12px; }
+
+/* Do not clip Google's fixed-width reCAPTCHA iframe or its branding. */
 body.registration-page .captcha-panel {
   width: 100%;
   min-width: 0;
   box-sizing: border-box;
-  flex-wrap: wrap;
-  justify-content: flex-start;
+  display: flex;
+  flex-direction: column;
   align-items: flex-start;
-  gap: 10px 14px;
-  overflow: hidden;
+  justify-content: flex-start;
+  gap: 12px;
+  overflow: visible;
 }
 body.registration-page .captcha-panel .g-recaptcha {
   width: 304px;
-  max-width: 100%;
-  min-width: 0;
-  flex: 0 1 304px;
-  overflow: hidden;
+  height: 78px;
+  max-width: none;
+  min-width: 304px;
+  flex: 0 0 78px;
+  overflow: visible;
+  transform: scale(.94);
+  transform-origin: top left;
+  margin-bottom: -4px;
 }
-body.registration-page .captcha-panel .g-recaptcha iframe {
-  max-width: 100%;
-}
+body.registration-page .captcha-panel .g-recaptcha iframe { max-width: none; }
 body.registration-page .captcha-help {
-  flex: 1 1 100%;
+  flex: 0 0 auto;
   width: 100%;
   text-align: left;
 }
-.upload-box.has-file {
-  min-height: 150px;
-  padding: 12px;
-  gap: 8px;
-}
+
+/* Document upload previews */
+.upload-box.has-file { min-height: 150px; padding: 12px; gap: 8px; }
 .upload-box .upload-thumbnail {
   display: block;
   width: min(100%, 220px);
@@ -7673,78 +7653,53 @@ body.registration-page .captcha-help {
   border: 1px solid #d7e3ea;
   background: #eef3f6;
 }
-.upload-box .upload-file-name {
-  max-width: 100%;
-  overflow-wrap: anywhere;
-}
-.upload-box.has-file .upload-file-name {
-  font-size: .88rem;
-  font-weight: 700;
-  color: #31556a;
-}
+.upload-box .upload-file-name { max-width: 100%; overflow-wrap: anywhere; }
+.upload-box.has-file .upload-file-name { font-size: .88rem; font-weight: 700; color: #31556a; }
 .notification-icon .material-symbols-outlined {
   font-size: 30px;
   line-height: 1;
   font-variation-settings: "FILL" 1, "wght" 600;
 }
-.image-crop-modal {
-  position: fixed;
-  inset: 0;
-  z-index: 13000;
-  display: grid;
-  place-items: center;
-  padding: 14px;
-  background: rgba(5, 18, 30, .78);
-  backdrop-filter: blur(5px);
-}
-.image-crop-modal[hidden] { display: none !important; }
-.image-crop-dialog {
-  width: min(760px, 100%);
-  max-height: min(92dvh, 900px);
-  display: grid;
-  grid-template-rows: auto minmax(220px, 1fr) auto;
-  overflow: hidden;
-  border-radius: 18px;
-  background: #fff;
-  box-shadow: 0 24px 70px rgba(0,0,0,.35);
-}
-.image-crop-head {
+
+/* Make the completed face check read as a clear success status. */
+.face-verification-form-status {
   display: flex;
   align-items: flex-start;
-  justify-content: space-between;
   gap: 12px;
-  padding: 16px 18px;
-  border-bottom: 1px solid #e5edf2;
+  width: 100%;
+  margin-top: 14px;
+  padding: 15px;
+  border: 1px solid #9bd8bd;
+  border-radius: 13px;
+  background: #effaf4;
+  color: #145c3d;
+  box-sizing: border-box;
 }
-.image-crop-head h3 { margin: 0 0 5px; color: #102d46; }
-.image-crop-head p { margin: 0; color: #607587; font-size: .9rem; line-height: 1.45; }
-.image-crop-stage {
-  min-height: 220px;
-  max-height: 62dvh;
-  padding: 12px;
-  background: #101820;
-  overflow: hidden;
+.face-verification-form-status[hidden] { display: none !important; }
+.face-verification-form-icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #16834f;
+  color: #fff;
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1;
 }
-.image-crop-stage img {
-  display: block;
-  max-width: 100%;
-  max-height: 58dvh;
-}
-.image-crop-stage .cropper-container { max-width: 100%; }
-.image-crop-actions {
-  display: flex;
-  justify-content: flex-end;
-  flex-wrap: wrap;
-  gap: 10px;
-  padding: 14px 18px;
-  border-top: 1px solid #e5edf2;
-}
-.image-crop-actions button { min-height: 46px; }
-@media (max-width: 560px) {
-  .image-crop-modal { padding: 8px; }
-  .image-crop-dialog { max-height: 94dvh; border-radius: 14px; }
-  .image-crop-head { padding: 13px; }
-  .image-crop-stage { min-height: 200px; padding: 8px; }
-  .image-crop-actions { padding: 12px; }
-  .image-crop-actions button { flex: 1 1 100%; }
+.face-verification-form-status > div { display: grid; gap: 5px; min-width: 0; }
+.face-verification-form-status strong { color: #145c3d; font-size: .98rem; line-height: 1.35; }
+.face-verification-form-status small { display: block; color: #386b55; font-size: .9rem; line-height: 1.5; }
+
+/* Notifications must be above the duplicate-choice modal when reporting a failed attempt. */
+#success-notification-overlay { z-index: 1500; }
+#duplicate-record-overlay { z-index: 1400; }
+
+@media (max-width: 380px) {
+  body.registration-page .captcha-panel .g-recaptcha {
+    transform: scale(.88);
+    margin-bottom: -8px;
+  }
 }

@@ -6706,50 +6706,45 @@ function showNotification(message, type = "success", onClose) {
   const notificationMessage = document.getElementById("notification-message");
   const notificationTitle = document.getElementById("notification-title");
   const notificationIcon = document.getElementById("notification-icon");
+  const iconSymbol = notificationIcon?.querySelector(".material-symbols-outlined");
   const closeButton = document.getElementById("notification-close-button");
 
   if (!overlay || !notification || !notificationMessage || !notificationTitle || !notificationIcon || !closeButton) {
-    if (typeof onClose === 'function') {
-      try { onClose(); } catch (e) { /* ignore */ }
-    }
+    if (typeof onClose === "function") onClose();
     return;
   }
 
-  notificationIcon.classList.remove(
-      "notification-icon-success",
-      "notification-icon-error"
-  );
+  closeButton.onclick = null;
+  overlay.onclick = null;
 
-  if (type === "error") {
-      notificationTitle.textContent = "Submission Failed";
-      notificationIcon.textContent = "⚠";
-      notificationIcon.classList.add("notification-icon-error");
-  }
-  else {
-      notificationTitle.textContent = "Submission Successful";
-      notificationIcon.textContent = "✔";
-      notificationIcon.classList.add("notification-icon-success");
-  }
-
+  const isError = type === "error";
+  notificationTitle.textContent = isError ? "Submission Failed" : "Submission Successful";
+  if (iconSymbol) iconSymbol.textContent = isError ? "warning" : "check_circle";
+  else notificationIcon.textContent = isError ? "⚠" : "✔";
+  notificationIcon.classList.toggle("notification-icon-error", isError);
+  notificationIcon.classList.toggle("notification-icon-success", !isError);
   notificationMessage.textContent = message;
+
   overlay.hidden = false;
   notification.hidden = false;
 
+  let closed = false;
   const closeNotification = function () {
+    if (closed) return;
+    closed = true;
     overlay.hidden = true;
     notification.hidden = true;
-    if (typeof onClose === 'function') {
-      try { onClose(); } catch (e) { /* ignore */ }
+    closeButton.onclick = null;
+    overlay.onclick = null;
+    if (typeof onClose === "function") {
+      try { onClose(); } catch (error) { console.error("Notification close callback failed:", error); }
     }
   };
 
-  closeButton.addEventListener("click", closeNotification, { once: true });
-  overlay.addEventListener("click", function (ev) {
-    if (ev.target === overlay) {
-      closeNotification();
-    }
-  }, { once: true });
-
+  closeButton.onclick = closeNotification;
+  overlay.onclick = function (event) {
+    if (event.target === overlay) closeNotification();
+  };
 }
 
 function showSuccessNotification(message, onClose) {
@@ -6793,7 +6788,15 @@ async function verifyDuplicateApplicant(sessionId) {
   const result = await response.json();
 
   if (!response.ok) {
+    const reasonMessages = {
+      expired: "This verification session has expired. Please submit the application form again.",
+      invalid_session: "This verification session is no longer valid. Please submit the application form again.",
+      record_not_found: "The existing application record could not be found. Please contact OSCA Bauan for assistance.",
+      identity_mismatch: "The information entered does not exactly match the existing record. Please check the spelling of the first, middle, and last names, and verify the date of birth."
+    };
+
     throw new Error(
+      reasonMessages[result.reason] ||
       result.message ||
       "Identity verification failed."
     );
@@ -6906,9 +6909,14 @@ function showDuplicateRecordModal(
         encodeURIComponent(updateSessionId);
 
     } catch (error) {
+      overlay.hidden = true;
+      modal.hidden = true;
       showErrorNotification(
-        error.message ||
-        "Unable to verify your identity."
+        error.message || "Unable to verify your identity.",
+        function () {
+          overlay.hidden = false;
+          modal.hidden = false;
+        }
       );
 
     } finally {
