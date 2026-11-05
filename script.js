@@ -4164,6 +4164,13 @@ function setupFormSubmitConfirmation() {
     return;
   }
 
+  const setSubmissionProgress = function (message) {
+    const progress = document.getElementById("mobile-submission-progress");
+    if (!progress) return;
+    progress.textContent = message || "";
+    progress.hidden = !message;
+  };
+
   const getSupabaseClient = function () {
     return window.supabaseClient || window.supabase || null;
   };
@@ -5102,12 +5109,14 @@ function setupFormSubmitConfirmation() {
         const originalText =
           submitButton.textContent;
 
-        submitButton.textContent =
+        const initialProgress =
           isPendingEdit || isDuplicateUpdate
-            ? "Saving..."
+            ? "Saving your changes..."
             : isRequestEdit
-              ? "Processing..."
-              : "Submitting...";
+              ? "Processing your request..."
+              : "Submitting your application...";
+        submitButton.textContent = initialProgress;
+        setSubmissionProgress(initialProgress);
 
         try {
           if (isRequestEdit) {
@@ -5143,6 +5152,7 @@ function setupFormSubmitConfirmation() {
 
           submitButton.textContent =
             "Checking image quality...";
+          setSubmissionProgress("Checking image quality...");
 
           const latestPhotoInput =
             document.getElementById(
@@ -5185,6 +5195,7 @@ function setupFormSubmitConfirmation() {
           if (!isPendingEdit && !isDuplicateUpdate) {
             submitButton.textContent =
               "Verifying documents...";
+            setSubmissionProgress("Verifying your documents...");
 
             const documentVerificationResults =
               await verifyRequiredDocuments();
@@ -5199,7 +5210,11 @@ function setupFormSubmitConfirmation() {
             isPendingEdit || isDuplicateUpdate
               ? "Saving..."
               : "Submitting...";
-
+          setSubmissionProgress(
+            isPendingEdit || isDuplicateUpdate
+              ? "Saving your changes..."
+              : "Submitting your application..."
+          );
 
           const result =
             await saveApplication();
@@ -5359,6 +5374,7 @@ function setupFormSubmitConfirmation() {
           submitButton.disabled = false;
           submitButton.textContent =
             originalText;
+          setSubmissionProgress("");
         }
       }
     );
