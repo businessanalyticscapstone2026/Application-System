@@ -488,7 +488,8 @@ async def verify_age(
 
     detected_birth_date = (
         extract_birth_date_from_text(
-            ocr_text
+            ocr_text,
+            expected_birth_date=entered_birth_date
         )
     )
 
