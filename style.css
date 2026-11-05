@@ -7767,3 +7767,10 @@ body.registration-page .captcha-help {
   .image-crop-actions { padding: 12px; }
   .image-crop-actions button { flex: 1 1 100%; }
 }
+
+/* Page 6 uses the fixed action bar for Back, Review and submit, and Cancel Application.
+   Keep these legacy controls in the DOM for existing JavaScript handlers, but never display them. */
+.application-form-card .btn.submit[hidden],
+.application-form-card #cancel-application[hidden] {
+  display: none !important;
+}
