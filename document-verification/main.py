@@ -782,6 +782,17 @@ def evaluate_identity_consistency(
         ocr_text
     )
 
+    # Birth certificates can contain dense tables, stamps, and
+    # overprinted fields. OCR non-detection of a name is not proof
+    # of an identity mismatch, so route name checks to staff review.
+    if document_type == "birth_certificate":
+        name_checks = {
+            "nameMatched": None,
+            "firstNameMatched": None,
+            "middleNameMatched": None,
+            "surnameMatched": None
+        }
+
     dob_matched = check_dob(
         date_of_birth,
         ocr_text
@@ -1591,6 +1602,15 @@ def perform_information_checks(
         )
     )
 
+    # Birth-certificate name OCR is advisory. Unconfirmed names
+    # must be manually checked by OSCA staff, not auto-rejected.
+    if document_type == "birth_certificate":
+        name_results = {
+            "nameMatched": None,
+            "firstNameMatched": None,
+            "middleNameMatched": None,
+            "surnameMatched": None
+        }
 
     information_checks = {
 
@@ -2511,21 +2531,25 @@ async def screen_document(
     # 7. SCREENING STATUS
     # ========================================================
 
-    if len(
-        mismatches
-    ) == 0:
-
-        screening_status = (
-            "passed"
-        )
+    if len(mismatches) == 0:
 
         passed = True
 
-        message = (
-            "The document passed automated "
-            "screening. Final verification will "
-            "be performed by OSCA staff."
-        )
+        if identity_consistency["status"] == "needs_review":
+            screening_status = "needs_review"
+            message = (
+                "The document passed basic screening, but some "
+                "identity details could not be confirmed by OCR. "
+                "OSCA staff must manually verify the document "
+                "before approving the application."
+            )
+        else:
+            screening_status = "passed"
+            message = (
+                "The document passed automated "
+                "screening. Final verification will "
+                "be performed by OSCA staff."
+            )
 
 
     else:
