@@ -170,12 +170,9 @@ def calculate_age(
 
 def extract_birth_date_from_text(text, expected_birth_date=None):
     """
-    Extract a date of birth from OCR text.
-
-    Prefer dates near an explicit DOB label. When OCR has flattened
-    the ID layout and no label is retained, only accept an OCR date
-    that matches the applicant's supplied DOB. This prevents an
-    unrelated date/number on the ID from being mistaken for DOB.
+    Extract DOB from OCR text. Prefer a date near an explicit DOB
+    label. If OCR loses layout/labels, accept a unique match to the
+    DOB entered by the applicant rather than guessing from other dates.
     """
     if not text:
         return None
@@ -184,8 +181,8 @@ def extract_birth_date_from_text(text, expected_birth_date=None):
 
     def parse_candidate(value):
         value = re.sub(r"\s+", " ", value.strip())
-        value = re.sub(r"(?<=\\d)[Oo](?=\\d)", "0", value)
-        value = re.sub(r"(?<=\\d)[Il](?=\\d)", "1", value)
+        value = re.sub(r"(?<=\d)[Oo](?=\d)", "0", value)
+        value = re.sub(r"(?<=\d)[Il](?=\d)", "1", value)
         formats = (
             "%B %d, %Y", "%b %d, %Y",
             "%B %d %Y", "%b %d %Y",
@@ -197,14 +194,13 @@ def extract_birth_date_from_text(text, expected_birth_date=None):
             try:
                 return datetime.strptime(value, date_format).date()
             except ValueError:
-                continue
+                pass
         return None
 
     date_pattern = re.compile(
-        r"(?i)\\b(?:January|February|March|April|May|June|July|August|September|October|November|December)"
-        r"\s+\\d{1,2},?\\s+\\d{4}\\b"
-        r"|\\b\\d{1,2}[/-]\\d{1,2}[/-]\\d{4}\\b"
-        r"|\\b\\d{4}-\\d{2}-\\d{2}\\b"
+        r"(?i)\b(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},?\s+\d{4}\b"
+        r"|\b\d{1,2}[/-]\d{1,2}[/-]\d{4}\b"
+        r"|\b\d{4}-\d{2}-\d{2}\b"
     )
 
     candidates = []
@@ -216,12 +212,11 @@ def extract_birth_date_from_text(text, expected_birth_date=None):
     if not candidates:
         return None
 
-    # Dates explicitly associated with DOB labels take precedence.
-    dob_labels = list(re.finditer(
-        r"(?i)\\b(?:date\\s+of\\s+birth|birth\\s+date|birthdate|dob)\\b",
+    labels = list(re.finditer(
+        r"(?i)\b(?:date\s+of\s+birth|birth\s+date|birthdate|dob)\b",
         normalized
     ))
-    for label in dob_labels:
+    for label in labels:
         nearby = [
             (abs(pos - label.end()), parsed)
             for pos, end, parsed in candidates
@@ -231,25 +226,27 @@ def extract_birth_date_from_text(text, expected_birth_date=None):
             nearby.sort(key=lambda item: item[0])
             return nearby[0][1]
 
-    # A printed month-name DOB such as "SEPTEMBER 18, 1964" is
-    # distinctive and safe to use when OCR loses the nearby label.
-    month_name_candidates = [
+    # Month-name formats (as printed on this Philippine National ID)
+    # are unambiguous and can be safely recognized even when OCR loses
+    # the nearby field label.
+    month_name_dates = [
         parsed for pos, end, parsed in candidates
         if re.match(
-            r"(?i)\\s*(?:January|February|March|April|May|June|July|August|September|October|November|December)",
+            r"(?i)(?:January|February|March|April|May|June|July|August|September|October|November|December)",
             normalized[pos:end]
         )
     ]
-    if len(month_name_candidates) == 1:
-        return month_name_candidates[0]
+    if len(month_name_dates) == 1:
+        return month_name_dates[0]
 
-    # OCR may flatten the card and omit labels. In that case do not
-    # guess which numeric date is DOB: compare candidates to the date
-    # already entered by the applicant, and accept only a unique match.
+    # For numeric-only dates, require a unique match with the submitted DOB.
     if expected_birth_date:
-        matches = [parsed for _, _, parsed in candidates if parsed == expected_birth_date]
-        if len(set(matches)) == 1:
-            return matches[0]
+        matching_dates = {
+            parsed for _, _, parsed in candidates
+            if parsed == expected_birth_date
+        }
+        if len(matching_dates) == 1:
+            return next(iter(matching_dates))
 
     return None
 
