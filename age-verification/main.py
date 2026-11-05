@@ -180,10 +180,10 @@ def extract_birth_date_from_text(text, expected_birth_date=None):
     if not text:
         return None
 
-    normalized = re.sub(r"\\s+", " ", str(text)).strip()
+    normalized = re.sub(r"\s+", " ", str(text)).strip()
 
     def parse_candidate(value):
-        value = re.sub(r"\\s+", " ", value.strip())
+        value = re.sub(r"\s+", " ", value.strip())
         value = re.sub(r"(?<=\\d)[Oo](?=\\d)", "0", value)
         value = re.sub(r"(?<=\\d)[Il](?=\\d)", "1", value)
         formats = (
@@ -202,7 +202,7 @@ def extract_birth_date_from_text(text, expected_birth_date=None):
 
     date_pattern = re.compile(
         r"(?i)\\b(?:January|February|March|April|May|June|July|August|September|October|November|December)"
-        r"\\s+\\d{1,2},?\\s+\\d{4}\\b"
+        r"\s+\\d{1,2},?\\s+\\d{4}\\b"
         r"|\\b\\d{1,2}[/-]\\d{1,2}[/-]\\d{4}\\b"
         r"|\\b\\d{4}-\\d{2}-\\d{2}\\b"
     )
