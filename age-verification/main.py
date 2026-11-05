@@ -186,19 +186,20 @@ def extract_birth_date_from_text(text, expected_birth_date=None):
     )
 
     month_first_pattern = (
-        rf"(?i)(?:{month_names})\.?[\s,./-]+\d{{1,2}}"
-        rf"(?:st|nd|rd|th)?[\s,./-]+\d{{4}}"
+        rf"(?:{month_names})\\.?[\\s,./-]+\\d{{1,2}}"
+        rf"(?:st|nd|rd|th)?[\\s,./-]+\\d{{4}}"
     )
     day_first_pattern = (
-        rf"(?i)\d{{1,2}}(?:st|nd|rd|th)?[\s,./-]+"
-        rf"(?:{month_names})\.?[\s,./-]+\d{{4}}"
+        rf"\\d{{1,2}}(?:st|nd|rd|th)?[\\s,./-]+"
+        rf"(?:{month_names})\\.?[\\s,./-]+\\d{{4}}"
     )
     numeric_pattern = (
-        r"\d{1,2}[/-]\d{1,2}[/-]\d{4}|\d{4}-\d{2}-\d{2}"
+        r"\\d{1,2}[/-]\\d{1,2}[/-]\\d{4}|\\d{4}-\\d{2}-\\d{2}"
     )
 
     date_pattern = re.compile(
-        rf"(?<![A-Za-z0-9])(?:{month_first_pattern}|{day_first_pattern}|{numeric_pattern})(?![A-Za-z0-9])"
+        rf"(?<![A-Za-z0-9])(?:{month_first_pattern}|{day_first_pattern}|{numeric_pattern})(?![A-Za-z0-9])",
+        re.IGNORECASE
     )
 
     def parse_candidate(raw_value):
