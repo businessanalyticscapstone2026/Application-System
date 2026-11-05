@@ -472,7 +472,6 @@
                 <small class="upload-file-name">No file selected</small>
               </label>
               <div class="upload-actions">
-                <button type="button" class="view-btn" hidden>View</button>
                 <button type="button" class="change-btn" hidden>Change</button>
               </div>
 
@@ -487,7 +486,6 @@
                 <small class="upload-file-name">No file selected</small>
               </label>
               <div class="upload-actions">
-                <button type="button" class="view-btn" hidden>View</button>
                 <button type="button" class="change-btn" hidden>Change</button>
               </div>
 
@@ -507,7 +505,6 @@
                 <small class="upload-file-name">No file selected</small>
               </label>
               <div class="upload-actions">
-                <button type="button" class="view-btn" hidden>View</button>
                 <button type="button" class="change-btn" hidden>Change</button>
               </div>
             </div>
@@ -550,7 +547,6 @@
                 <small class="upload-file-name">No file selected</small>
               </label>
               <div class="upload-actions">
-                <button type="button" class="view-btn" hidden>View</button>
                 <button type="button" class="change-btn" hidden>Change</button>
               </div>
             </div>
@@ -618,7 +614,6 @@
                 <small class="upload-file-name">No file selected</small>
               </label>
               <div class="upload-actions">
-                <button type="button" class="view-btn" hidden>View</button>
                 <button type="button" class="change-btn" hidden>Change</button>
               </div>
             </div>
@@ -742,10 +737,9 @@
           </div>
         </div>
 
-        <div class="button-row">
-          <button type="button" class="btn submit">Submit</button>
-          <button type="button" class="btn cancel" id="cancel-application">Cancel</button>
-        </div>
+        <!-- Hidden programmatic controls: the fixed action bar is the only visible submit/cancel UI. -->
+        <button type="button" class="btn submit" hidden>Submit</button>
+        <button type="button" class="btn cancel" id="cancel-application" hidden>Cancel</button>
       </section>
       <div class="mobile-action-bar">
         <div class="mobile-action-hint" role="status" aria-live="polite"><span class="material-symbols-outlined" aria-hidden="true">error</span><span>Complete the required fields to continue</span></div>
