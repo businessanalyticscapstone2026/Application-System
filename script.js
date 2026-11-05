@@ -265,7 +265,11 @@ function setupUploadButtons() {
     currentInputForReplace = null;
   };
 
-  const closeCrop = function () {
+  const closeCrop = function (keepOriginalFile = false) {
+    // If the user closes the cropper without applying a crop, keep the
+    // original file selected and refresh the upload label/preview.
+    const inputToRefresh = keepOriginalFile ? cropInput : null;
+
     if (currentCropper) currentCropper.destroy();
     currentCropper = null;
     if (currentCropUrl) URL.revokeObjectURL(currentCropUrl);
@@ -277,6 +281,10 @@ function setupUploadButtons() {
     if (cropImage) cropImage.src = "";
     cropInput = null;
     cropOriginalFile = null;
+
+    if (inputToRefresh) {
+      inputToRefresh.dispatchEvent(new Event("change", { bubbles: true }));
+    }
   };
 
   const finishCrop = function (file) {
@@ -351,10 +359,10 @@ function setupUploadButtons() {
     if (cropInput && cropOriginalFile) finishCrop(cropOriginalFile);
   });
   if (cropClose) cropClose.addEventListener("click", function () {
-    closeCrop();
+    closeCrop(true);
   });
   if (cropModal) cropModal.addEventListener("click", function (event) {
-    if (event.target === cropModal) closeCrop();
+    if (event.target === cropModal) closeCrop(true);
   });
 
   if (previewClose) {
@@ -363,7 +371,7 @@ function setupUploadButtons() {
       if (event.target === filePreviewModal) closePreview();
     });
     document.addEventListener("keydown", (event) => {
-      if (event.key === "Escape" && cropModal && !cropModal.hidden) closeCrop();
+      if (event.key === "Escape" && cropModal && !cropModal.hidden) closeCrop(true);
       else if (event.key === "Escape" && filePreviewModal && !filePreviewModal.hidden) closePreview();
     });
   }
