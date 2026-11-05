@@ -12,6 +12,9 @@ from fastapi.middleware.cors import ( # type: ignore
 import httpx # type: ignore
 import os
 import re
+from io import BytesIO
+
+from PIL import Image, ImageOps
 
 from datetime import datetime, date
 
@@ -275,6 +278,90 @@ def extract_birth_date_from_text(text, expected_birth_date=None):
 
 
 # =====================================================
+# OCR IMAGE OPTIMIZATION
+# =====================================================
+
+def prepare_ocr_image(file_bytes, filename, content_type):
+    """
+    OCR.Space's free API has a 1 MB upload limit. Keep smaller files
+    unchanged and safely compress larger ID images to a readable JPEG
+    below 900 KB before forwarding them to the OCR provider.
+    """
+    max_upload_bytes = 900 * 1024
+
+    if len(file_bytes) <= max_upload_bytes:
+        return file_bytes, filename or "valid-id.jpg", content_type or "image/jpeg"
+
+    try:
+        with Image.open(BytesIO(file_bytes)) as source:
+            image = ImageOps.exif_transpose(source)
+
+            # Flatten transparent PNGs onto white before JPEG conversion.
+            if image.mode in ("RGBA", "LA") or (
+                image.mode == "P" and "transparency" in image.info
+            ):
+                rgba = image.convert("RGBA")
+                background = Image.new("RGB", rgba.size, "white")
+                background.paste(rgba, mask=rgba.getchannel("A"))
+                image = background
+            else:
+                image = image.convert("RGB")
+
+            image.thumbnail((2200, 2200), Image.Resampling.LANCZOS)
+
+            while True:
+                for quality in (88, 84, 80, 76, 72, 68, 64):
+                    output = BytesIO()
+                    image.save(
+                        output,
+                        format="JPEG",
+                        quality=quality,
+                        optimize=True
+                    )
+                    optimized = output.getvalue()
+
+                    if len(optimized) <= max_upload_bytes:
+                        return (
+                            optimized,
+                            "optimized-id.jpg",
+                            "image/jpeg"
+                        )
+
+                width, height = image.size
+                if max(width, height) <= 1200:
+                    # Last-resort compression while retaining the image dimensions.
+                    output = BytesIO()
+                    image.save(
+                        output,
+                        format="JPEG",
+                        quality=50,
+                        optimize=True
+                    )
+                    optimized = output.getvalue()
+
+                    if len(optimized) <= max_upload_bytes:
+                        return (
+                            optimized,
+                            "optimized-id.jpg",
+                            "image/jpeg"
+                        )
+
+                    raise ValueError(
+                        "The ID image could not be reduced below the OCR upload limit."
+                    )
+
+                image = image.resize(
+                    (max(1, int(width * 0.85)), max(1, int(height * 0.85))),
+                    Image.Resampling.LANCZOS
+                )
+
+    except (OSError, ValueError) as exc:
+        raise RuntimeError(
+            "The uploaded ID image could not be optimized. Please upload a JPG or PNG image."
+        ) from exc
+
+
+# =====================================================
 # OCR.SPACE
 # =====================================================
 
@@ -291,17 +378,27 @@ async def run_ocr(
         )
 
 
+    original_size = len(file_bytes)
+    file_bytes, filename, content_type = prepare_ocr_image(
+        file_bytes,
+        filename,
+        content_type
+    )
+
+    if len(file_bytes) != original_size:
+        print(
+            "OCR image optimized:",
+            str(original_size),
+            "bytes ->",
+            str(len(file_bytes)),
+            "bytes"
+        )
+
     files = {
         "file": (
-            filename
-            or
-            "valid-id.jpg",
-
+            filename,
             file_bytes,
-
             content_type
-            or
-            "image/jpeg"
         )
     }
 
