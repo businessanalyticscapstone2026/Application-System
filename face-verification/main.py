@@ -14,6 +14,9 @@ import onnxruntime as ort # type: ignore
 
 from pathlib import Path
 
+# Avoid OpenCV creating large worker pools on small Render instances.
+cv2.setNumThreads(1)
+
 
 # =====================================================
 # MODEL PATHS
@@ -205,7 +208,7 @@ def create_face_detector(
         ),
         YUNET_SCORE_THRESHOLD,
         YUNET_NMS_THRESHOLD,
-        5000
+        500
     )
 
 
