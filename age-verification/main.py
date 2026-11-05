@@ -482,23 +482,36 @@ async def verify_age(
 
     except Exception as exc:
 
-        print(
-            "OCR API error:",
-            repr(
-                exc
+        # Keep the detailed provider failure in server logs and the API
+        # response's diagnostic field so OCR failures are not mistaken for
+        # DOB mismatches. Do not return the uploaded OCR text or ID contents.
+        if isinstance(exc, httpx.HTTPStatusError):
+            diagnostic = (
+                "OCR provider HTTP status "
+                + str(exc.response.status_code)
             )
-        )
+        elif isinstance(exc, httpx.RequestError):
+            diagnostic = (
+                "OCR provider network error: "
+                + type(exc).__name__
+            )
+        else:
+            diagnostic = (
+                str(exc).strip()[:240]
+                or type(exc).__name__
+            )
 
+        print("OCR API error:", diagnostic)
 
         return {
-            "success":
-                False,
-
-            "verified":
-                False,
-
-            "message":
-                "Unable to read the date of birth from the uploaded valid ID."
+            "success": False,
+            "verified": False,
+            "errorCode": "OCR_PROCESSING_FAILED",
+            "message": (
+                "The OCR service could not process this ID image. "
+                "Please try a clear, front-facing JPG or PNG image."
+            ),
+            "diagnostic": diagnostic
         }
 
 
