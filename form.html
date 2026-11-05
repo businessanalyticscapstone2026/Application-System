@@ -1424,7 +1424,7 @@
         }));
         mobileBack?.addEventListener("click", () => { if (currentStepIndex > 0) showStep(currentStepIndex - 1); });
         mobileNext?.addEventListener("click", () => advanceStep(currentStepIndex));
-        document.querySelector(".mobile-cancel-application")?.addEventListener("click", cancelApplication);
+        document.querySelector(".mobile-cancel-application")?.addEventListener("click", () => document.getElementById("cancel-application")?.click());
         document.addEventListener("application:draft-saved", () => {
           if (mobileDraftStatus) mobileDraftStatus.textContent = "Draft saved";
         });
