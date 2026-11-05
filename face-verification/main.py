@@ -78,6 +78,10 @@ app.add_middleware(
 # =====================================================
 
 anti_spoof_session = None
+face_recognizer = None
+
+# Keep inference resource usage within Render's 512 MB free-instance limit.
+MAX_IMAGE_DIMENSION = 1280
 
 
 
@@ -157,38 +161,19 @@ def prepare_image_for_detection(
 
     height, width = image.shape[:2]
 
-    min_dimension = min(
-        width,
-        height
-    )
+    # Downscale high-resolution phone photos before detection.
+    # Never enlarge small images because that wastes memory.
+    longest_side = max(width, height)
 
-    if min_dimension < 640:
-
-        scale = (
-            640
-            /
-            min_dimension
-        )
-
-        new_width = int(
-            width
-            *
-            scale
-        )
-
-        new_height = int(
-            height
-            *
-            scale
-        )
+    if longest_side > MAX_IMAGE_DIMENSION:
+        scale = MAX_IMAGE_DIMENSION / longest_side
+        new_width = max(1, int(width * scale))
+        new_height = max(1, int(height * scale))
 
         image = cv2.resize(
             image,
-            (
-                new_width,
-                new_height
-            ),
-            interpolation=cv2.INTER_CUBIC
+            (new_width, new_height),
+            interpolation=cv2.INTER_AREA
         )
 
     return image
@@ -368,19 +353,23 @@ def detect_single_face(
 
 def create_face_recognizer():
 
-    if not SFACE_MODEL_PATH.exists():
+    global face_recognizer
 
+    if face_recognizer is not None:
+        return face_recognizer
+
+    if not SFACE_MODEL_PATH.exists():
         raise FileNotFoundError(
             "SFace recognition model is missing."
         )
 
-
-    return cv2.FaceRecognizerSF.create(
-        str(
-            SFACE_MODEL_PATH
-        ),
+    # Load the recognition model only once per worker process.
+    face_recognizer = cv2.FaceRecognizerSF.create(
+        str(SFACE_MODEL_PATH),
         ""
     )
+
+    return face_recognizer
 
 
 # =====================================================
@@ -404,16 +393,16 @@ def create_anti_spoof_session():
         )
 
 
-    anti_spoof_session = (
-        ort.InferenceSession(
-            str(
-                MINIFASNET_MODEL_PATH
-            ),
+    session_options = ort.SessionOptions()
+    session_options.intra_op_num_threads = 1
+    session_options.inter_op_num_threads = 1
+    session_options.execution_mode = ort.ExecutionMode.ORT_SEQUENTIAL
+    session_options.enable_mem_pattern = False
 
-            providers=[
-                "CPUExecutionProvider"
-            ]
-        )
+    anti_spoof_session = ort.InferenceSession(
+        str(MINIFASNET_MODEL_PATH),
+        sess_options=session_options,
+        providers=["CPUExecutionProvider"]
     )
 
 
@@ -1004,26 +993,13 @@ async def verify_face(
     # 1. READ FILES
     # =================================================
 
-    source_bytes = (
-        await source_image.read()
-    )
+    source_bytes = await source_image.read()
+    source = decode_uploaded_image(source_bytes)
+    del source_bytes
 
-    target_bytes = (
-        await target_image.read()
-    )
-
-
-    # =================================================
-    # 2. DECODE FILES
-    # =================================================
-
-    source = decode_uploaded_image(
-        source_bytes
-    )
-
-    target = decode_uploaded_image(
-        target_bytes
-    )
+    target_bytes = await target_image.read()
+    target = decode_uploaded_image(target_bytes)
+    del target_bytes
 
 
     if source is None:
@@ -1104,6 +1080,10 @@ async def verify_face(
         }
 
 
+    # Release the full-resolution source image; the result keeps only
+    # the resized image needed for the remaining verification steps.
+    del source
+
     # =================================================
     # 4. DETECT FACE ON LIVE CAMERA CAPTURE
     # =================================================
@@ -1157,6 +1137,8 @@ async def verify_face(
                 "Multiple faces were detected from the camera. Only one person should be visible."
         }
 
+
+    del target
 
     # =================================================
     # 5. LIVENESS CHECK
