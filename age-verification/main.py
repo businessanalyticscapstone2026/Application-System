@@ -251,7 +251,19 @@ def extract_birth_date_from_text(text, expected_birth_date=None):
     if not candidates:
         return None
 
-    # A DOB label is the strongest signal; choose the closest date after it.
+    # If OCR found the exact written-month date supplied by the applicant,
+    # prefer it even when OCR has placed another nearby date beside a DOB
+    # label. This handles IDs that print DOB as "SEPTEMBER 18, 1964".
+    month_name_candidates = [
+        parsed for pos, end, parsed in candidates
+        if re.search(rf"(?i)\\b(?:{month_pattern})\\b", normalized[pos:end])
+    ]
+
+    if expected_birth_date and expected_birth_date in month_name_candidates:
+        return expected_birth_date
+
+    # A DOB label remains the strongest signal when no written-month
+    # candidate directly matches the entered DOB.
     labels = list(re.finditer(
         r"(?i)\\b(?:date\\s+of\\s+birth|birth\\s+date|birthdate|dob)\\b",
         normalized
@@ -266,13 +278,9 @@ def extract_birth_date_from_text(text, expected_birth_date=None):
             nearby.sort(key=lambda item: item[0])
             return nearby[0][1]
 
-    # Written month names are not ambiguous between day/month and month/day.
-    month_name_dates = [
-        parsed for pos, end, parsed in candidates
-        if re.search(rf"(?i)\\b(?:{month_pattern})\\b", normalized[pos:end])
-    ]
-    if len(month_name_dates) == 1:
-        return month_name_dates[0]
+    # A single written-month date is unambiguous without relying on layout.
+    if len(month_name_candidates) == 1:
+        return month_name_candidates[0]
 
     # For numeric-only dates, never guess between unrelated ID dates.
     if expected_birth_date:
