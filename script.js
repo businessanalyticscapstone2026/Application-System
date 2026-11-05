@@ -836,21 +836,10 @@ async function loadApplicationForEditing() {
       Object.entries(draft).forEach(
         function ([key, value]) {
 
-          if (
-            value === null ||
-            value === undefined ||
-            (
-              typeof value === "string" &&
-              value.trim() === ""
-            )
-          ) {
-            return;
-          }
-
-          if (
-            typeof value === "boolean" &&
-            value === false
-          ) {
+          // The new application draft is the applicant's intended update.
+          // Preserve explicit empty strings, nulls, and false values so
+          // corrected/cleared fields can replace the old stored values.
+          if (value === undefined) {
             return;
           }
 
@@ -6770,11 +6759,11 @@ async function verifyDuplicateApplicant(sessionId) {
   const firstName =
     document.getElementById("firstname")?.value.trim() || "";
 
-  const middleName =
-    document.getElementById("middlename")?.value.trim() || "";
-
   const dateOfBirth =
     document.getElementById("dob")?.value || "";
+
+  const barangayDistrict =
+    document.getElementById("barangay")?.value.trim() || "";
 
   const response = await fetch(
     "https://osca-backend.onrender.com/api/applications/duplicate/verify",
@@ -6787,8 +6776,8 @@ async function verifyDuplicateApplicant(sessionId) {
         sessionId,
         surname,
         firstName,
-        middleName,
-        dateOfBirth
+        dateOfBirth,
+        barangayDistrict
       })
     }
   );
