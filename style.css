@@ -958,7 +958,6 @@ body.camera-open .chatbot-button {
   gap: 8px;
 }
 
-.view-btn,
 .change-btn {
   border: 1px solid rgba(15, 23, 42, 0.08);
   background: #f6f9fb;
@@ -967,11 +966,6 @@ body.camera-open .chatbot-button {
   border-radius: 8px;
   cursor: pointer;
   font-weight: 700;
-}
-
-.view-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
 }
 
 .upload-item h3 {
@@ -7652,6 +7646,7 @@ body.registration-page .captcha-help {
   border-radius: 9px;
   border: 1px solid #d7e3ea;
   background: #eef3f6;
+  cursor: zoom-in;
 }
 .upload-box .upload-file-name { max-width: 100%; overflow-wrap: anywhere; }
 .upload-box.has-file .upload-file-name { font-size: .88rem; font-weight: 700; color: #31556a; }
