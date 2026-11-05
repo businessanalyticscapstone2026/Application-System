@@ -170,35 +170,48 @@ def calculate_age(
 
 def extract_birth_date_from_text(text, expected_birth_date=None):
     """
-    Extract the date of birth from OCR text while supporting both numeric
-    dates and dates with written month names (for example, SEPTEMBER 18, 1964
-    or 18 SEPTEMBER 1964). Prefer a candidate next to a DOB label. If OCR
-    loses the label, only use an unambiguous written-month date or a unique
-    numeric match to the date entered by the applicant.
+    Extract DOB candidates from OCR text. Supports numeric dates and written
+    month dates. An exact match to the applicant's submitted DOB is preferred
+    so OCR layout/order does not cause a false mismatch.
     """
     if not text:
         return None
 
-    normalized = re.sub(r"\\s+", " ", str(text)).strip()
-    month_pattern = (
-        r"January|February|March|April|May|June|July|August|September|"
-        r"October|November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Sept|"
-        r"Oct|Nov|Dec"
+    normalized = re.sub(r"\s+", " ", str(text)).strip()
+
+    month_names = (
+        "January|February|March|April|May|June|July|August|September|"
+        "October|November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Sept|"
+        "Oct|Nov|Dec"
     )
 
-    def parse_candidate(value):
-        value = re.sub(r"\\s+", " ", value.strip())
-        value = re.sub(r"(?<=\\d)[Oo](?=\\d)", "0", value)
-        value = re.sub(r"(?<=\\d)[Il](?=\\d)", "1", value)
+    month_first_pattern = (
+        rf"(?i)(?:{month_names})\.?[\s,./-]+\d{{1,2}}"
+        rf"(?:st|nd|rd|th)?[\s,./-]+\d{{4}}"
+    )
+    day_first_pattern = (
+        rf"(?i)\d{{1,2}}(?:st|nd|rd|th)?[\s,./-]+"
+        rf"(?:{month_names})\.?[\s,./-]+\d{{4}}"
+    )
+    numeric_pattern = (
+        r"\d{1,2}[/-]\d{1,2}[/-]\d{4}|\d{4}-\d{2}-\d{2}"
+    )
 
-        # Normalize OCR variations in month-name dates, including either
-        # day/month order, optional commas/periods, and ordinal suffixes.
+    date_pattern = re.compile(
+        rf"(?<![A-Za-z0-9])(?:{month_first_pattern}|{day_first_pattern}|{numeric_pattern})(?![A-Za-z0-9])"
+    )
+
+    def parse_candidate(raw_value):
+        value = re.sub(r"\s+", " ", raw_value.strip())
+        value = re.sub(r"(?<=\d)[Oo](?=\d)", "0", value)
+        value = re.sub(r"(?<=\d)[Il](?=\d)", "1", value)
+
         month_first = re.fullmatch(
-            rf"(?i)({month_pattern})\\.?[\\s,./-]+(\\d{{1,2}})(?:st|nd|rd|th)?[\\s,./-]+(\\d{{4}})",
+            rf"(?i)({month_names})\.?[\s,./-]+(\d{{1,2}})(?:st|nd|rd|th)?[\s,./-]+(\d{{4}})",
             value
         )
         day_first = re.fullmatch(
-            rf"(?i)(\\d{{1,2}})(?:st|nd|rd|th)?[\\s,./-]+({month_pattern})\\.?[\\s,./-]+(\\d{{4}})",
+            rf"(?i)(\d{{1,2}})(?:st|nd|rd|th)?[\s,./-]+({month_names})\.?[\s,./-]+(\d{{4}})",
             value
         )
 
@@ -209,10 +222,10 @@ def extract_birth_date_from_text(text, expected_birth_date=None):
             else:
                 day_text, month_text, year_text = match.groups()
 
-            month_number = datetime.strptime(
-                month_text[:3].title(), "%b"
-            ).month
             try:
+                month_number = datetime.strptime(
+                    month_text[:3].title(), "%b"
+                ).month
                 return date(
                     int(year_text),
                     month_number,
@@ -221,10 +234,11 @@ def extract_birth_date_from_text(text, expected_birth_date=None):
             except ValueError:
                 return None
 
+        # Numeric dates are parsed in both common orders. The submitted DOB
+        # disambiguates them below; ISO is unambiguous.
         for date_format in (
-            "%m/%d/%Y", "%d/%m/%Y",
-            "%m-%d-%Y", "%d-%m-%Y",
-            "%Y-%m-%d"
+            "%Y-%m-%d", "%m/%d/%Y", "%d/%m/%Y",
+            "%m-%d-%Y", "%d-%m-%Y"
         ):
             try:
                 return datetime.strptime(value, date_format).date()
@@ -232,64 +246,57 @@ def extract_birth_date_from_text(text, expected_birth_date=None):
                 continue
         return None
 
-    # Capture month-name dates in either order, plus numeric dates.
-    date_pattern = re.compile(
-        rf"(?i)\\b(?:{month_pattern})\\.?[\\s,./-]+\\d{{1,2}}"
-        rf"(?:st|nd|rd|th)?[\\s,./-]+\\d{{4}}\\b"
-        rf"|\\b\\d{{1,2}}(?:st|nd|rd|th)?[\\s,./-]+"
-        rf"(?:{month_pattern})\\.?[\\s,./-]+\\d{{4}}\\b"
-        rf"|\\b\\d{{1,2}}[/-]\\d{{1,2}}[/-]\\d{{4}}\\b"
-        rf"|\\b\\d{{4}}-\\d{{2}}-\\d{{2}}\\b"
-    )
-
     candidates = []
     for match in date_pattern.finditer(normalized):
         parsed = parse_candidate(match.group(0))
         if parsed:
-            candidates.append((match.start(), match.end(), parsed))
+            has_month_name = bool(re.search(
+                rf"(?i)\b(?:{month_names})\b",
+                match.group(0)
+            ))
+            candidates.append({
+                "start": match.start(),
+                "end": match.end(),
+                "date": parsed,
+                "written_month": has_month_name
+            })
 
     if not candidates:
         return None
 
-    # If OCR found the exact written-month date supplied by the applicant,
-    # prefer it even when OCR has placed another nearby date beside a DOB
-    # label. This handles IDs that print DOB as "SEPTEMBER 18, 1964".
-    month_name_candidates = [
-        parsed for pos, end, parsed in candidates
-        if re.search(rf"(?i)\\b(?:{month_pattern})\\b", normalized[pos:end])
+    # Exact calendar-date match takes priority regardless of OCR text order.
+    matching_candidates = [
+        item for item in candidates
+        if expected_birth_date and item["date"] == expected_birth_date
     ]
-
-    if expected_birth_date and expected_birth_date in month_name_candidates:
+    if matching_candidates:
         return expected_birth_date
 
-    # A DOB label remains the strongest signal when no written-month
-    # candidate directly matches the entered DOB.
+    # If no exact match exists, prefer a date immediately following a DOB label.
     labels = list(re.finditer(
-        r"(?i)\\b(?:date\\s+of\\s+birth|birth\\s+date|birthdate|dob)\\b",
+        r"(?i)\b(?:date\s+of\s+birth|birth\s+date|birthdate|dob)\b",
         normalized
     ))
     for label in labels:
         nearby = [
-            (abs(pos - label.end()), parsed)
-            for pos, end, parsed in candidates
-            if pos >= label.end() - 8 and pos <= label.end() + 100
+            item for item in candidates
+            if label.end() - 8 <= item["start"] <= label.end() + 100
         ]
         if nearby:
-            nearby.sort(key=lambda item: item[0])
-            return nearby[0][1]
+            nearby.sort(key=lambda item: abs(item["start"] - label.end()))
+            return nearby[0]["date"]
 
-    # A single written-month date is unambiguous without relying on layout.
-    if len(month_name_candidates) == 1:
-        return month_name_candidates[0]
+    # A single written-month date is unambiguous without a field label.
+    written_dates = [
+        item["date"] for item in candidates if item["written_month"]
+    ]
+    if len(set(written_dates)) == 1:
+        return written_dates[0]
 
-    # For numeric-only dates, never guess between unrelated ID dates.
-    if expected_birth_date:
-        matching_dates = {
-            parsed for _, _, parsed in candidates
-            if parsed == expected_birth_date
-        }
-        if len(matching_dates) == 1:
-            return next(iter(matching_dates))
+    # Do not guess between multiple numeric dates when no DOB label exists.
+    unique_dates = {item["date"] for item in candidates}
+    if len(unique_dates) == 1:
+        return next(iter(unique_dates))
 
     return None
 
