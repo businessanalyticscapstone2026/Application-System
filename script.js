@@ -383,7 +383,6 @@ function setupUploadButtons() {
     const fileNameLabel = uploadBox.querySelector(".upload-file-name");
     const actions = uploadBox.nextElementSibling && uploadBox.nextElementSibling.classList.contains("upload-actions")
       ? uploadBox.nextElementSibling : null;
-    const viewBtn = actions ? actions.querySelector(".view-btn") : null;
     const changeBtn = actions ? actions.querySelector(".change-btn") : null;
 
     let thumbnailUrl = null;
@@ -402,7 +401,7 @@ function setupUploadButtons() {
       if (fileNameLabel) {
         fileNameLabel.textContent = !hasFile
           ? "No file selected"
-          : (file.type && file.type.startsWith("image/") ? "Image selected · tap View to inspect" : file.type === "application/pdf" ? "PDF document selected" : "File selected");
+          : (file.type && file.type.startsWith("image/") ? "Image selected · tap image to view" : file.type === "application/pdf" ? "PDF document selected" : "File selected");
       }
       if (thumbnailUrl) URL.revokeObjectURL(thumbnailUrl);
       thumbnailUrl = null;
@@ -417,7 +416,6 @@ function setupUploadButtons() {
         }
       }
       uploadBox.classList.toggle("has-file", hasFile);
-      if (viewBtn) { viewBtn.hidden = !hasFile; viewBtn.disabled = !hasFile; }
       if (changeBtn) changeBtn.hidden = !hasFile;
     };
 
@@ -431,34 +429,71 @@ function setupUploadButtons() {
       updateButtonsState();
     });
 
-    if (viewBtn) {
-      viewBtn.addEventListener("click", function () {
-        const file = inputElement.files && inputElement.files[0];
-        if (!file) return;
-        if (currentPreviewUrl) URL.revokeObjectURL(currentPreviewUrl);
-        currentPreviewUrl = URL.createObjectURL(file);
-        if (file.type && file.type.startsWith("image/")) {
-          if (previewIframe) previewIframe.hidden = true;
-          if (previewImage) { previewImage.src = currentPreviewUrl; previewImage.hidden = false; }
-        } else if (file.type === "application/pdf") {
-          if (previewImage) previewImage.hidden = true;
-          if (previewIframe) { previewIframe.src = currentPreviewUrl; previewIframe.hidden = false; }
-        } else {
-          window.open(currentPreviewUrl, "_blank");
-          return;
+    const openSelectedFile = function (file) {
+      if (!file) return;
+
+      if (currentPreviewUrl) URL.revokeObjectURL(currentPreviewUrl);
+      currentPreviewUrl = URL.createObjectURL(file);
+
+      if (file.type && file.type.startsWith("image/")) {
+        if (previewIframe) previewIframe.hidden = true;
+        if (previewImage) {
+          previewImage.src = currentPreviewUrl;
+          previewImage.hidden = false;
         }
-        if (filePreviewModal) {
-          filePreviewModal.hidden = false;
-          filePreviewModal.setAttribute("aria-hidden", "false");
+      } else if (file.type === "application/pdf") {
+        if (previewImage) previewImage.hidden = true;
+        if (previewIframe) {
+          previewIframe.src = currentPreviewUrl;
+          previewIframe.hidden = false;
         }
+      } else {
+        window.open(currentPreviewUrl, "_blank", "noopener,noreferrer");
+        return;
+      }
+
+      if (filePreviewModal) {
+        filePreviewModal.hidden = false;
+        filePreviewModal.setAttribute("aria-hidden", "false");
+      }
+    };
+
+    // Once a file is selected, tapping its preview opens the viewer.
+    // Replacing a selected file is handled only by the Change button.
+    uploadBox.addEventListener("click", function (event) {
+      const file = inputElement.files && inputElement.files[0];
+      if (file) {
+        event.preventDefault();
+        openSelectedFile(file);
+        return;
+      }
+
+      const existingFileUrl = inputElement.dataset.existingFileUrl;
+      if (existingFileUrl) {
+        event.preventDefault();
+        window.open(existingFileUrl, "_blank", "noopener,noreferrer");
+      }
+    });
+
+    if (changeBtn) {
+      changeBtn.addEventListener("click", function () {
+        inputElement.click();
       });
     }
 
-    if (changeBtn) changeBtn.addEventListener("click", function () { inputElement.click(); });
     uploadBox.addEventListener("keydown", function (event) {
       if (event.key === "Enter" || event.key === " ") {
-        event.preventDefault();
-        inputElement.click();
+        const file = inputElement.files && inputElement.files[0];
+        if (file) {
+          event.preventDefault();
+          openSelectedFile(file);
+        } else if (inputElement.dataset.existingFileUrl) {
+          event.preventDefault();
+          window.open(inputElement.dataset.existingFileUrl, "_blank", "noopener,noreferrer");
+        } else {
+          event.preventDefault();
+          inputElement.click();
+        }
       }
     });
   });
@@ -773,9 +808,6 @@ async function loadApplicationForEditing() {
         ? uploadBox.nextElementSibling
         : null;
 
-    const viewButton =
-      actions?.querySelector(".view-btn");
-
     const changeButton =
       actions?.querySelector(".change-btn");
 
@@ -786,35 +818,21 @@ async function loadApplicationForEditing() {
 
     if (fileNameLabel) {
       fileNameLabel.textContent =
-        getFileNameFromPath(filePath);
+        signedUrl
+          ? "Existing file · tap preview to view"
+          : getFileNameFromPath(filePath);
     }
 
-    if (viewButton) {
-      viewButton.hidden = !signedUrl;
-      viewButton.disabled = !signedUrl;
-
-      viewButton.addEventListener(
-        "click",
-        function (event) {
-          if (
-            input.files &&
-            input.files.length > 0
-          ) {
-            return;
-          }
-
-          event.stopImmediatePropagation();
-
-          if (signedUrl) {
-            window.open(
-              signedUrl,
-              "_blank",
-              "noopener,noreferrer"
-            );
-          }
-        },
-        true
-      );
+    if (signedUrl && /\\.(png|jpe?g|webp|gif)(?:[?#]|$)/i.test(signedUrl)) {
+      let thumbnail = uploadBox.querySelector(".upload-thumbnail");
+      if (!thumbnail) {
+        thumbnail = document.createElement("img");
+        thumbnail.className = "upload-thumbnail";
+        thumbnail.alt = "Existing document preview";
+        uploadBox.insertBefore(thumbnail, fileNameLabel || null);
+      }
+      thumbnail.src = signedUrl;
+      thumbnail.hidden = false;
     }
 
     if (changeButton) {
