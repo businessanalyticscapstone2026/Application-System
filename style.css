@@ -7774,3 +7774,39 @@ body.registration-page .captcha-help {
 .application-form-card #cancel-application[hidden] {
   display: none !important;
 }
+
+
+/* Visible feedback while the page-six fixed action bar is submitting. */
+.mobile-action-progress {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0 0 10px;
+  padding: 12px 14px;
+  border: 1px solid #b9d9d2;
+  border-radius: 12px;
+  background: #effaf6;
+  color: #075f50;
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-align: center;
+}
+.mobile-action-progress::before {
+  content: "";
+  width: 17px;
+  height: 17px;
+  flex: 0 0 17px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: submission-progress-spin 0.8s linear infinite;
+}
+.mobile-action-progress[hidden] {
+  display: none !important;
+}
+@keyframes submission-progress-spin {
+  to { transform: rotate(360deg); }
+}
