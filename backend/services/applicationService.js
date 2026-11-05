@@ -1747,11 +1747,11 @@ export async function verifyDuplicateIdentity(
   }
 
   const normalizeText = (value) =>
-    String(value ?? "").trim().replace(/\\s+/g, " ").toLocaleLowerCase();
+    String(value ?? "").trim().replace(/\s+/g, " ").toLocaleLowerCase();
 
   const normalizeDate = (value) => {
     const raw = String(value ?? "").trim();
-    const isoDate = raw.match(/^(\\d{4}-\\d{2}-\\d{2})/);
+    const isoDate = raw.match(/^(\d{4}-\d{2}-\d{2})/);
     if (isoDate) return isoDate[1];
 
     const parsed = new Date(raw);
