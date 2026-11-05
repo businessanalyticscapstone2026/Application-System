@@ -6788,7 +6788,15 @@ async function verifyDuplicateApplicant(sessionId) {
   const result = await response.json();
 
   if (!response.ok) {
+    const reasonMessages = {
+      expired: "This verification session has expired. Please submit the application form again.",
+      invalid_session: "This verification session is no longer valid. Please submit the application form again.",
+      record_not_found: "The existing application record could not be found. Please contact OSCA Bauan for assistance.",
+      identity_mismatch: "The information entered does not exactly match the existing record. Please check the spelling of the first, middle, and last names, and verify the date of birth."
+    };
+
     throw new Error(
+      reasonMessages[result.reason] ||
       result.message ||
       "Identity verification failed."
     );
