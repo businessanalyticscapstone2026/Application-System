@@ -1717,115 +1717,75 @@ export async function verifyDuplicateIdentity(
   sessionId,
   surname,
   firstName,
-  middleName,
-  dateOfBirth
+  dateOfBirth,
+  barangayDistrict
 ) {
-  // Get the temporary verification session
   const { data: session, error: sessionError } =
     await supabase
       .from("duplicate_verification_sessions")
-      .select(`
-        id,
-        application_id,
-        purpose,
-        verified,
-        expires_at
-      `)
+      .select("id, application_id, purpose, verified, expires_at")
       .eq("id", sessionId)
       .single();
 
   if (sessionError || !session) {
-    return {
-      verified: false,
-      reason: "invalid_session"
-    };
+    return { verified: false, reason: "invalid_session" };
   }
 
-  // Check expiration
-  if (
-    new Date(session.expires_at).getTime() <
-    Date.now()
-  ) {
-    return {
-      verified: false,
-      reason: "expired"
-    };
+  if (new Date(session.expires_at).getTime() < Date.now()) {
+    return { verified: false, reason: "expired" };
   }
 
-  // Get the existing applicant
   const { data: applicant, error: applicantError } =
     await supabase
       .from("applications")
-      .select(`
-        application_id,
-        surname,
-        first_name,
-        middle_name,
-        date_of_birth
-      `)
-      .eq(
-        "application_id",
-        session.application_id
-      )
+      .select("application_id, surname, first_name, date_of_birth, barangay_district")
+      .eq("application_id", session.application_id)
       .single();
 
   if (applicantError || !applicant) {
-    return {
-      verified: false,
-      reason: "record_not_found"
-    };
+    return { verified: false, reason: "record_not_found" };
   }
 
-  const normalize = (value) =>
-    String(value || "")
-      .trim()
-      .toLowerCase();
+  const normalizeText = (value) =>
+    String(value ?? "").trim().replace(/\s+/g, " ").toLocaleLowerCase();
 
-  const surnameMatches =
-    normalize(applicant.surname) ===
-    normalize(surname);
+  const normalizeDate = (value) => {
+    const raw = String(value ?? "").trim();
+    const isoDate = raw.match(/^(\d{4}-\d{2}-\d{2})/);
+    if (isoDate) return isoDate[1];
 
-  const firstNameMatches =
-    normalize(applicant.first_name) ===
-    normalize(firstName);
+    const parsed = new Date(raw);
+    return Number.isNaN(parsed.getTime())
+      ? raw
+      : parsed.toISOString().slice(0, 10);
+  };
 
-  const middleNameMatches =
-    normalize(applicant.middle_name) ===
-    normalize(middleName);
+  /*
+   * Use the same identifying fields as findDuplicateApplicant().
+   * Middle name is intentionally not used here: an applicant may
+   * correct/update it after the existing record has been securely found.
+   * Date normalization avoids false mismatches between YYYY-MM-DD and
+   * database timestamp representations of the same calendar date.
+   */
+  const matches =
+    normalizeText(applicant.surname) === normalizeText(surname) &&
+    normalizeText(applicant.first_name) === normalizeText(firstName) &&
+    normalizeDate(applicant.date_of_birth) === normalizeDate(dateOfBirth) &&
+    normalizeText(applicant.barangay_district) === normalizeText(barangayDistrict);
 
-  const birthdateMatches =
-    String(applicant.date_of_birth) ===
-    String(dateOfBirth);
-
-  if (
-    !surnameMatches ||
-    !firstNameMatches ||
-    !middleNameMatches ||
-    !birthdateMatches
-  ) {
-    return {
-      verified: false,
-      reason: "identity_mismatch"
-    };
+  if (!matches) {
+    return { verified: false, reason: "identity_mismatch" };
   }
 
-  // Mark session as verified
   const { error: updateError } =
     await supabase
       .from("duplicate_verification_sessions")
-      .update({
-        verified: true
-      })
+      .update({ verified: true })
       .eq("id", session.id);
 
-  if (updateError) {
-    throw updateError;
-  }
+  if (updateError) throw updateError;
 
-  return {
-    verified: true,
-    purpose: session.purpose
-  };
+  return { verified: true, purpose: session.purpose };
 }
 
 export async function getVerifiedDuplicateApplication(

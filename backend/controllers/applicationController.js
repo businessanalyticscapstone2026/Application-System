@@ -214,20 +214,20 @@ export async function verifyDuplicateApplicant(
       sessionId,
       surname,
       firstName,
-      middleName,
-      dateOfBirth
+      dateOfBirth,
+      barangayDistrict
     } = req.body;
 
     if (
       !sessionId ||
       !surname ||
       !firstName ||
-      !dateOfBirth
+      !dateOfBirth ||
+      !barangayDistrict
     ) {
       return res.status(400).json({
         success: false,
-        message:
-          "Required verification information is missing."
+        message: "Required verification information is missing."
       });
     }
 
@@ -236,8 +236,8 @@ export async function verifyDuplicateApplicant(
         sessionId,
         surname,
         firstName,
-        middleName || "",
-        dateOfBirth
+        dateOfBirth,
+        barangayDistrict
       );
 
     if (!result.verified) {
