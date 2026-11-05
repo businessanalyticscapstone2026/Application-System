@@ -462,10 +462,17 @@ function setupUploadButtons() {
     // Replacing a selected file is handled only by the Change button.
     uploadBox.addEventListener("click", function (event) {
       const file = inputElement.files && inputElement.files[0];
-      if (!file) return;
+      if (file) {
+        event.preventDefault();
+        openSelectedFile(file);
+        return;
+      }
 
-      event.preventDefault();
-      openSelectedFile(file);
+      const existingFileUrl = inputElement.dataset.existingFileUrl;
+      if (existingFileUrl) {
+        event.preventDefault();
+        window.open(existingFileUrl, "_blank", "noopener,noreferrer");
+      }
     });
 
     if (changeBtn) {
@@ -480,6 +487,9 @@ function setupUploadButtons() {
         if (file) {
           event.preventDefault();
           openSelectedFile(file);
+        } else if (inputElement.dataset.existingFileUrl) {
+          event.preventDefault();
+          window.open(inputElement.dataset.existingFileUrl, "_blank", "noopener,noreferrer");
         } else {
           event.preventDefault();
           inputElement.click();
@@ -808,7 +818,21 @@ async function loadApplicationForEditing() {
 
     if (fileNameLabel) {
       fileNameLabel.textContent =
-        getFileNameFromPath(filePath);
+        signedUrl
+          ? "Existing file · tap preview to view"
+          : getFileNameFromPath(filePath);
+    }
+
+    if (signedUrl && /\\.(png|jpe?g|webp|gif)(?:[?#]|$)/i.test(signedUrl)) {
+      let thumbnail = uploadBox.querySelector(".upload-thumbnail");
+      if (!thumbnail) {
+        thumbnail = document.createElement("img");
+        thumbnail.className = "upload-thumbnail";
+        thumbnail.alt = "Existing document preview";
+        uploadBox.insertBefore(thumbnail, fileNameLabel || null);
+      }
+      thumbnail.src = signedUrl;
+      thumbnail.hidden = false;
     }
 
     if (changeButton) {
