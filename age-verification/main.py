@@ -170,8 +170,8 @@ def calculate_age(
 
 def extract_birth_date_from_text(text, expected_birth_date=None):
     """
-    Extract DOB from OCR text. Prefer an exact match to the submitted date.
-    Supports numeric dates and month-name dates in either order.
+    Extract DOB candidates from OCR text. Handles common OCR spacing and
+    punctuation variations in numeric and written-month dates.
     """
     if not text:
         return None
@@ -179,17 +179,19 @@ def extract_birth_date_from_text(text, expected_birth_date=None):
     normalized = re.sub(r"\s+", " ", str(text)).strip()
     month_names = (
         "January|February|March|April|May|June|July|August|September|"
-        "October|November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Sept|"
-        "Oct|Nov|Dec"
+        "October|November|December|Sept|Sep|Jan|Feb|Mar|Apr|Jun|Jul|"
+        "Aug|Oct|Nov|Dec"
     )
 
     patterns = [
+        # SEPTEMBER 18, 1964 / SEPTEMBER 18,1964 / SEPTEMBER 18 1964
         re.compile(
-            r"\b(" + month_names + r")\.?\s+(\d{1,2})(?:st|nd|rd|th)?[,]?\s+(\d{4})\b",
+            r"\b(" + month_names + r")\.?\s+(\d{1,2})(?:st|nd|rd|th)?(?:\s*,\s*|\s+)(\d{4})\b",
             re.IGNORECASE
         ),
+        # 18 SEPTEMBER 1964 / 18 SEPTEMBER, 1964
         re.compile(
-            r"\b(\d{1,2})(?:st|nd|rd|th)?\s+(" + month_names + r")\.?\s+(\d{4})\b",
+            r"\b(\d{1,2})(?:st|nd|rd|th)?\s+(" + month_names + r")\.?(?:\s*,\s*|\s+)(\d{4})\b",
             re.IGNORECASE
         ),
         re.compile(r"\b(\d{1,2})[/-](\d{1,2})[/-](\d{4})\b"),
@@ -197,7 +199,6 @@ def extract_birth_date_from_text(text, expected_birth_date=None):
     ]
 
     candidates = []
-
     for pattern_index, pattern in enumerate(patterns):
         for match in pattern.finditer(normalized):
             try:
@@ -215,9 +216,8 @@ def extract_birth_date_from_text(text, expected_birth_date=None):
                     first, second, year = map(int, groups)
                     for month, day in ((first, second), (second, first)):
                         try:
-                            parsed = date(year, month, day)
                             candidates.append({
-                                "date": parsed,
+                                "date": date(year, month, day),
                                 "start": match.start(),
                                 "written": False
                             })
@@ -240,10 +240,13 @@ def extract_birth_date_from_text(text, expected_birth_date=None):
     if not candidates:
         return None
 
-    if expected_birth_date is not None:
-        if any(item["date"] == expected_birth_date for item in candidates):
-            return expected_birth_date
+    # Prefer an exact DOB match among dates actually recognized in OCR.
+    if expected_birth_date is not None and any(
+        item["date"] == expected_birth_date for item in candidates
+    ):
+        return expected_birth_date
 
+    # If the OCR includes a DOB label, prefer the closest date following it.
     labels = list(re.finditer(
         r"\b(?:date\s+of\s+birth|birth\s+date|birthdate|dob)\b",
         normalized,
@@ -479,23 +482,36 @@ async def verify_age(
 
     except Exception as exc:
 
-        print(
-            "OCR API error:",
-            repr(
-                exc
+        # Keep the detailed provider failure in server logs and the API
+        # response's diagnostic field so OCR failures are not mistaken for
+        # DOB mismatches. Do not return the uploaded OCR text or ID contents.
+        if isinstance(exc, httpx.HTTPStatusError):
+            diagnostic = (
+                "OCR provider HTTP status "
+                + str(exc.response.status_code)
             )
-        )
+        elif isinstance(exc, httpx.RequestError):
+            diagnostic = (
+                "OCR provider network error: "
+                + type(exc).__name__
+            )
+        else:
+            diagnostic = (
+                str(exc).strip()[:240]
+                or type(exc).__name__
+            )
 
+        print("OCR API error:", diagnostic)
 
         return {
-            "success":
-                False,
-
-            "verified":
-                False,
-
-            "message":
-                "Unable to read the date of birth from the uploaded valid ID."
+            "success": False,
+            "verified": False,
+            "errorCode": "OCR_PROCESSING_FAILED",
+            "message": (
+                "The OCR service could not process this ID image. "
+                "Please try a clear, front-facing JPG or PNG image."
+            ),
+            "diagnostic": diagnostic
         }
 
 
