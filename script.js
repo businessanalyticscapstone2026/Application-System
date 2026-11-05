@@ -2992,19 +2992,69 @@ function setupFaceCamera() {
 
 
         /*
-        * DOB from form does not match ID.
+        * Distinguish a failed OCR/API request from a real DOB mismatch.
+        * The API may return success:false when OCR is unavailable, and may
+        * return detectedBirthDate:null when it cannot read a date. Neither
+        * case should be reported as a confirmed mismatch.
         */
         if (
-          ageResult.birthDateMatches !==
-          true
+          !ageResult ||
+          ageResult.success !== true
         ) {
 
+          const serviceMessage =
+            ageResult?.message ||
+            "The age verification service could not process the uploaded ID.";
+
           showErrorNotification(
-            "The date of birth entered in the application does not match the date of birth on your Valid ID."
+            serviceMessage
           );
 
           setVerificationResult(
-            "✕ Date of birth does not match the uploaded Valid ID.",
+            "Unable to verify the date of birth: " + serviceMessage,
+            "error"
+          );
+
+          return;
+        }
+
+        /*
+        * OCR completed, but no recognizable DOB was found.
+        */
+        if (
+          !ageResult.detectedBirthDate
+        ) {
+
+          const unreadableMessage =
+            ageResult.message ||
+            "We could not read a date of birth from the uploaded ID. Please upload a clearer, front-facing image.";
+
+          showErrorNotification(
+            unreadableMessage
+          );
+
+          setVerificationResult(
+            "✕ " + unreadableMessage,
+            "error"
+          );
+
+          return;
+        }
+
+        /*
+        * A DOB was actually detected and it differs from the form.
+        */
+        if (
+          ageResult.birthDateMatches !== true
+        ) {
+
+          showErrorNotification(
+            "The date of birth entered in the application does not match the date of birth detected on your Valid ID."
+          );
+
+          setVerificationResult(
+            "✕ DOB mismatch. The ID date detected was " +
+            ageResult.detectedBirthDate + ".",
             "error"
           );
 
