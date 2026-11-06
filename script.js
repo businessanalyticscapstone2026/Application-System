@@ -3015,10 +3015,28 @@ function setupFaceCamera() {
           "Please upload the front of your valid government ID before verification."
         );
 
-        validIdInput.scrollIntoView({
-          behavior: "smooth",
-          block: "center"
-        });
+        // Scroll only the form panel. Element.scrollIntoView() also scrolls
+        // the viewport/document and can shift the fixed sidebar over the form.
+        const formScrollContainer =
+          validIdInput.closest(".application-form-card");
+
+        if (formScrollContainer) {
+          const containerRect =
+            formScrollContainer.getBoundingClientRect();
+          const targetRect =
+            validIdInput.getBoundingClientRect();
+
+          formScrollContainer.scrollTo({
+            top:
+              formScrollContainer.scrollTop +
+              targetRect.top -
+              containerRect.top -
+              Math.max(24, formScrollContainer.clientHeight * 0.35),
+            behavior: "smooth"
+          });
+        } else {
+          validIdInput.focus({ preventScroll: true });
+        }
 
         return;
       }
