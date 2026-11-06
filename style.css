@@ -7860,7 +7860,7 @@ body.application-form-page .page-frame,
 body.application-form-page .form-wrapper,
 body.application-form-page .application-form-card,
 body.application-form-page .form-step-panel,
-body.application-form-page #documents-and-consent {
+body.application-form-page #upload-files {
   min-height: 0;
   height: auto;
 }
