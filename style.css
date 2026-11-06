@@ -8008,3 +8008,43 @@ body.application-form-page #upload-files .upload-item {
     padding-bottom: max(32px, env(safe-area-inset-bottom));
   }
 }
+
+
+/* QA FIX: keep the desktop application section navigation in view while
+   the applicant scrolls through long form sections. The sidebar itself does
+   not become a second scroll area; only the main page scrolls. */
+@media (min-width: 761px) {
+  body.application-form-page .form-wrapper {
+    overflow: visible;
+    align-items: stretch;
+  }
+
+  body.application-form-page .application-steps {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    height: 100vh;
+    min-height: 100vh;
+    max-height: 100vh;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+
+  body.application-form-page .application-steps .form-privacy-note {
+    margin-top: auto;
+    flex-shrink: 0;
+  }
+}
+
+/* On phones/tablets the navigation remains in normal document flow so it
+   does not cover the form or take over the limited viewport. */
+@media (max-width: 760px) {
+  body.application-form-page .application-steps {
+    position: relative;
+    top: auto;
+    height: auto;
+    min-height: 0;
+    max-height: none;
+    overflow: visible;
+  }
+}
