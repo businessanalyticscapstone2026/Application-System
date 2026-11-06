@@ -1451,3 +1451,101 @@ body.application-form-page .form-cancel-application:focus-visible {
     white-space: normal;
   }
 }
+
+/* FINAL OVERRIDE — form-only scrolling.
+   form-reference.css loads after style.css, so these rules intentionally live
+   at the end of this file to win over earlier responsive layout declarations. */
+html:has(body.application-form-page) {
+  height: 100% !important;
+  overflow: hidden !important;
+}
+body.application-form-page {
+  height: 100vh !important;
+  height: 100dvh !important;
+  min-height: 0 !important;
+  max-height: 100dvh !important;
+  overflow: hidden !important;
+}
+body.application-form-page .page-frame {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  min-height: 0 !important;
+  max-height: 100dvh !important;
+  overflow: hidden !important;
+}
+body.application-form-page .page-frame > .form-header,
+body.application-form-page .page-frame > .mobile-sticky-area,
+body.application-form-page .page-frame > .mobile-draft-status {
+  flex: 0 0 auto !important;
+}
+body.application-form-page .form-wrapper {
+  display: grid !important;
+  grid-template-columns: minmax(250px, 24.5%) minmax(0, 1fr) !important;
+  flex: 1 1 0 !important;
+  width: 100% !important;
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: hidden !important;
+  align-items: stretch !important;
+}
+body.application-form-page .application-steps {
+  position: relative !important;
+  inset: auto !important;
+  align-self: stretch !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  max-height: 100% !important;
+  overflow: hidden !important;
+}
+body.application-form-page .application-form-card {
+  display: block !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  height: 100% !important;
+  max-height: 100% !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  overscroll-behavior-y: contain !important;
+  -webkit-overflow-scrolling: touch !important;
+  scrollbar-gutter: stable;
+}
+@media (max-width: 900px) {
+  body.application-form-page .form-wrapper {
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+  }
+  body.application-form-page .application-steps {
+    position: relative !important;
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: min(30dvh, 220px) !important;
+    overflow: hidden !important;
+  }
+  body.application-form-page .application-form-card {
+    flex: 1 1 0 !important;
+    width: 100% !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+  }
+}
+@media (max-width: 600px) {
+  body.application-form-page .page-frame {
+    padding: 0 !important;
+  }
+  body.application-form-page .application-steps {
+    max-height: min(28dvh, 190px) !important;
+  }
+  body.application-form-page .application-form-card {
+    padding-bottom: max(28px, env(safe-area-inset-bottom)) !important;
+  }
+}
