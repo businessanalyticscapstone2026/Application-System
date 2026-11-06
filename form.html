@@ -1825,5 +1825,43 @@
     </div>
 
     <script type="module" src="supabase.js"></script>
-  </body>
+  
+    <script>
+      // Keep the form viewport below the real header/navigation stack.
+      // This avoids hard-coded header heights across desktop, tablet and mobile.
+      (() => {
+        const root = document.body;
+        const frame = document.querySelector(".page-frame");
+        const wrapper = document.querySelector(".form-wrapper");
+        if (!root || !frame || !wrapper) return;
+
+        const updateFormViewport = () => {
+          const selectors = [".form-header", ".mobile-sticky-area", ".mobile-draft-status"];
+          let bottom = 0;
+          selectors.forEach((selector) => {
+            const element = frame.querySelector(selector);
+            if (!element) return;
+            const style = window.getComputedStyle(element);
+            if (style.display === "none" || style.visibility === "hidden") return;
+            const rect = element.getBoundingClientRect();
+            if (rect.height > 0) bottom = Math.max(bottom, rect.bottom);
+          });
+          root.style.setProperty("--application-form-top", Math.max(0, Math.ceil(bottom)) + "px");
+        };
+
+        updateFormViewport();
+        window.addEventListener("resize", updateFormViewport, { passive: true });
+        window.addEventListener("orientationchange", updateFormViewport, { passive: true });
+        if ("ResizeObserver" in window) {
+          const observer = new ResizeObserver(updateFormViewport);
+          [frame.querySelector(".form-header"), frame.querySelector(".mobile-sticky-area"), frame.querySelector(".mobile-draft-status")]
+            .filter(Boolean)
+            .forEach((element) => observer.observe(element));
+        }
+        if (document.fonts && document.fonts.ready) {
+          document.fonts.ready.then(updateFormViewport).catch(() => {});
+        }
+      })();
+    </script>
+</body>
 </html>

@@ -1722,3 +1722,102 @@ body.application-form-page .application-form-card {
     overflow-y: auto !important;
   }
 }
+
+
+/* Viewport anchoring fix (follow-up): the previous nested grid/flex height
+   chain was still collapsing the form wrapper on the document-upload step.
+   Keep the page shell fixed and anchor the form area to the measured end of
+   the header/navigation stack. The card itself is the only scroll container. */
+html:has(body.application-form-page) {
+  position: static !important;
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+}
+body.application-form-page {
+  position: fixed !important;
+  inset: 0 !important;
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+}
+body.application-form-page .page-frame {
+  position: fixed !important;
+  inset: 0 !important;
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+body.application-form-page .page-frame > .form-header,
+body.application-form-page .page-frame > .mobile-sticky-area,
+body.application-form-page .page-frame > .mobile-draft-status {
+  position: relative !important;
+  z-index: 5 !important;
+}
+body.application-form-page .page-frame > .form-wrapper {
+  position: fixed !important;
+  top: var(--application-form-top, 132px) !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  display: grid !important;
+  grid-template-columns: minmax(250px, 24.5%) minmax(0, 1fr) !important;
+  grid-template-rows: minmax(0, 1fr) !important;
+  width: 100% !important;
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+}
+body.application-form-page .application-steps {
+  min-width: 0 !important;
+  min-height: 0 !important;
+  height: 100% !important;
+  max-height: none !important;
+  overflow: hidden !important;
+}
+body.application-form-page .application-form-card {
+  display: block !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  width: auto !important;
+  height: 100% !important;
+  max-height: none !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+@media (max-width: 900px) {
+  body.application-form-page .page-frame > .form-wrapper {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  body.application-form-page .application-steps {
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: min(28dvh, 210px) !important;
+    overflow: hidden !important;
+  }
+  body.application-form-page .application-form-card {
+    flex: 1 1 0 !important;
+    width: 100% !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    max-height: none !important;
+  }
+}
