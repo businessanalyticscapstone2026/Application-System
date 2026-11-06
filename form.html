@@ -1146,11 +1146,14 @@
           } else {
             actions.insertAdjacentHTML("beforeend", '<span class="form-step-required">* Required to continue</span>');
           }
-          if (index < groups.length - 1) {
+          {
             const next = document.createElement("button");
             next.type = "button";
             next.className = "form-step-next";
-            next.innerHTML = 'Continue <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>';
+            next.innerHTML = index < groups.length - 1
+              ? 'Continue <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>'
+              : 'Review and submit <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>';
+            next.setAttribute("aria-label", index < groups.length - 1 ? "Continue to the next section" : "Review and submit application");
             next.addEventListener("click", () => advanceStep(index));
             actions.append(next);
           }
