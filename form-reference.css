@@ -1982,6 +1982,50 @@ body.application-form-page .application-form-card {
 
   body.application-form-page .mobile-action-buttons .mobile-cancel-application {
     grid-column: 1 / -1 !important;
+    min-height: 42px !important;
+    border: 1px solid #d94b55 !important;
+    border-radius: 10px !important;
+    background: #fff !important;
+    color: #b42332 !important;
+    font-size: .88rem !important;
+    font-weight: 700 !important;
+  }
+
+  /* Keep the tablet action bar visually consistent with the desktop form palette. */
+  body.application-form-page .mobile-action-buttons .mobile-back {
+    border: 1px solid #dbe3ed !important;
+    border-radius: 9px !important;
+    background: #fff !important;
+    color: #17345f !important;
+  }
+  body.application-form-page .mobile-action-buttons .mobile-next {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 3px !important;
+    border: 1px solid #234f91 !important;
+    border-radius: 9px !important;
+    background: #234f91 !important;
+    color: #fff !important;
+    text-align: center !important;
+  }
+  body.application-form-page .mobile-action-buttons .mobile-next-label {
+    display: block !important;
+    max-width: 100% !important;
+    color: #fff !important;
+    font-size: .95rem !important;
+    line-height: 1.15 !important;
+    text-align: center !important;
+  }
+  body.application-form-page .mobile-action-buttons .mobile-next-section {
+    display: block !important;
+    max-width: 100% !important;
+    color: rgba(255,255,255,.82) !important;
+    font-size: .72rem !important;
+    line-height: 1.15 !important;
+    text-align: center !important;
+  }
+  body.application-form-page .mobile-action-buttons .mobile-next-section[hidden] {
+    display: none !important;
   }
 
   body.application-form-page .mobile-action-bar button:focus-visible {
