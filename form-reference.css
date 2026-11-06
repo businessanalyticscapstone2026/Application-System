@@ -1627,3 +1627,98 @@ body.application-form-page .application-form-card {
     overflow-y: auto !important;
   }
 }
+
+
+/* FINAL LAYOUT RESET — fixed shell with an independently scrolling form.
+   Use a fixed viewport shell rather than nested percentage heights; this
+   avoids the upload step shrinking the main region to its content height. */
+html:has(body.application-form-page) {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  overflow: hidden !important;
+}
+body.application-form-page {
+  position: fixed !important;
+  inset: 0 !important;
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+}
+body.application-form-page .page-frame {
+  position: absolute !important;
+  inset: 0 !important;
+  display: grid !important;
+  grid-template-rows: auto auto auto minmax(0, 1fr) !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  max-width: none !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+}
+body.application-form-page .page-frame > .form-header,
+body.application-form-page .page-frame > .mobile-sticky-area,
+body.application-form-page .page-frame > .mobile-draft-status {
+  min-height: 0 !important;
+  margin-bottom: 0 !important;
+}
+body.application-form-page .page-frame > .form-wrapper {
+  display: grid !important;
+  grid-template-columns: minmax(250px, 24.5%) minmax(0, 1fr) !important;
+  grid-template-rows: minmax(0, 1fr) !important;
+  width: 100% !important;
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: hidden !important;
+}
+body.application-form-page .application-steps {
+  min-height: 0 !important;
+  height: 100% !important;
+  max-height: none !important;
+  overflow: hidden !important;
+}
+body.application-form-page .application-form-card {
+  min-width: 0 !important;
+  min-height: 0 !important;
+  height: 100% !important;
+  max-height: none !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  overscroll-behavior-y: contain !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+@media (max-width: 900px) {
+  body.application-form-page .page-frame {
+    grid-template-rows: auto auto auto minmax(0, 1fr) !important;
+  }
+  body.application-form-page .page-frame > .form-wrapper {
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: 0 !important;
+    height: auto !important;
+  }
+  body.application-form-page .application-steps {
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: min(30dvh, 220px) !important;
+    overflow: hidden !important;
+  }
+  body.application-form-page .application-form-card {
+    flex: 1 1 0 !important;
+    width: 100% !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow-y: auto !important;
+  }
+}
