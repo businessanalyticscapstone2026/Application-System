@@ -8310,3 +8310,102 @@ body.application-form-page .application-form-card {
     padding: 14px 12px max(24px, env(safe-area-inset-bottom));
   }
 }
+
+
+/* Correct form-only scroll behavior: keep the outer viewport/page fixed,
+   while scrolling the form content and keeping the left navigation in place. */
+html:has(body.application-form-page) {
+  height: 100%;
+  min-height: 0;
+  overflow: hidden !important;
+}
+body.application-form-page {
+  height: 100dvh !important;
+  min-height: 0 !important;
+  max-height: 100dvh !important;
+  overflow: hidden !important;
+}
+body.application-form-page .page-frame {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100dvh;
+  min-height: 0;
+  max-height: 100dvh;
+  margin: 0;
+  overflow: hidden;
+}
+body.application-form-page .page-frame > .form-header,
+body.application-form-page .page-frame > .mobile-sticky-area,
+body.application-form-page .page-frame > .mobile-draft-status {
+  flex: 0 0 auto;
+}
+body.application-form-page .form-wrapper {
+  display: grid;
+  flex: 1 1 0;
+  min-height: 0;
+  height: auto;
+  max-height: none;
+  overflow: hidden;
+  align-items: stretch;
+}
+body.application-form-page .application-steps {
+  position: relative !important;
+  top: auto !important;
+  align-self: stretch;
+  height: 100%;
+  min-height: 0;
+  max-height: 100%;
+  overflow: hidden;
+}
+body.application-form-page .application-form-card {
+  flex: 1 1 0;
+  min-height: 0;
+  height: 100%;
+  max-height: 100%;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-gutter: stable;
+}
+@media (min-width: 901px) {
+  body.application-form-page .form-wrapper {
+    grid-template-columns: minmax(270px, .32fr) minmax(0, 1fr);
+  }
+}
+@media (max-width: 900px) {
+  body.application-form-page .page-frame { padding: 8px; }
+  body.application-form-page .form-wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  body.application-form-page .application-steps {
+    flex: 0 0 auto;
+    height: auto;
+    min-height: 0;
+    max-height: min(30dvh, 230px);
+    padding: 10px 14px;
+  }
+  body.application-form-page .steps-nav { margin-top: 8px; }
+  body.application-form-page .form-side-progress { display: none; }
+  body.application-form-page .application-form-card {
+    flex: 1 1 0;
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    max-height: none;
+    padding: 16px 14px max(24px, env(safe-area-inset-bottom));
+  }
+}
+@media (max-width: 600px) {
+  body.application-form-page .page-frame { padding: 0; }
+  body.application-form-page .application-steps {
+    max-height: 28dvh;
+    padding: 8px 12px;
+  }
+  body.application-form-page .application-form-card {
+    padding: 12px 12px max(24px, env(safe-area-inset-bottom));
+  }
+}
