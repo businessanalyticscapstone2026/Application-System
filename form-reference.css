@@ -1920,3 +1920,72 @@ body.application-form-page .application-form-card {
     overflow-y: scroll !important;
   }
 }
+
+
+/* Tablet action controls: the desktop navigation still fits on an iPad in
+   landscape, but the desktop step footer is not a reliable place for the
+   final review/submit controls. Reuse the accessible fixed action bar used
+   on phones for the entire tablet width range. */
+@media (min-width: 901px) and (max-width: 1100px) {
+  body.application-form-page .application-form-card {
+    padding-bottom: calc(132px + env(safe-area-inset-bottom)) !important;
+  }
+
+  body.application-form-page .form-step-actions {
+    display: none !important;
+  }
+
+  body.application-form-page .mobile-action-bar {
+    position: fixed !important;
+    z-index: 50 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    left: 24.5% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+    width: auto !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    padding: 10px 16px calc(10px + env(safe-area-inset-bottom)) !important;
+    border-top: 1px solid #d9e0e9 !important;
+    background: #fff !important;
+    box-shadow: 0 -8px 24px rgba(13, 34, 77, .12) !important;
+  }
+
+  body.application-form-page .mobile-action-buttons {
+    display: grid !important;
+    grid-template-columns: minmax(110px, .8fr) minmax(0, 1.2fr) !important;
+    gap: 10px !important;
+    width: 100% !important;
+    align-items: stretch !important;
+  }
+
+  body.application-form-page .mobile-action-buttons button {
+    display: flex !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 48px !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 9px 12px !important;
+    align-items: center !important;
+    justify-content: center !important;
+    white-space: normal !important;
+    writing-mode: horizontal-tb !important;
+    overflow-wrap: anywhere !important;
+    font: inherit !important;
+    font-weight: 800 !important;
+  }
+
+  body.application-form-page .mobile-action-buttons .mobile-cancel-application {
+    grid-column: 1 / -1 !important;
+  }
+
+  body.application-form-page .mobile-action-bar button:focus-visible {
+    outline: 3px solid rgba(217, 59, 73, .35) !important;
+    outline-offset: 3px !important;
+  }
+}
