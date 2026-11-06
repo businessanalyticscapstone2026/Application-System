@@ -1549,3 +1549,81 @@ body.application-form-page .application-form-card {
     padding-bottom: max(28px, env(safe-area-inset-bottom)) !important;
   }
 }
+
+
+/* Upload-screen regression guard: make the viewport and frame share an
+   explicit flex sizing chain, so file previews/upload panels cannot collapse
+   the content region after a file is selected. */
+html:has(body.application-form-page) {
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  overflow: hidden !important;
+}
+body.application-form-page {
+  display: flex !important;
+  flex-direction: column !important;
+  width: 100% !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  min-height: 0 !important;
+  max-height: 100dvh !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+}
+body.application-form-page .page-frame {
+  position: relative !important;
+  display: flex !important;
+  flex: 1 1 0 !important;
+  flex-direction: column !important;
+  width: 100% !important;
+  max-width: none !important;
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+}
+body.application-form-page .page-frame > .form-header,
+body.application-form-page .page-frame > .mobile-sticky-area,
+body.application-form-page .page-frame > .mobile-draft-status {
+  flex: 0 0 auto !important;
+}
+body.application-form-page .page-frame > .form-wrapper {
+  flex: 1 1 0 !important;
+  min-height: 0 !important;
+  height: 0 !important;
+  max-height: none !important;
+}
+body.application-form-page .application-form-card {
+  min-height: 0 !important;
+  height: 100% !important;
+  max-height: 100% !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+@media (max-width: 900px) {
+  body.application-form-page .page-frame > .form-wrapper {
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 1 0 !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+  }
+  body.application-form-page .application-steps {
+    flex: 0 0 auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: min(30dvh, 220px) !important;
+    overflow: hidden !important;
+  }
+  body.application-form-page .application-form-card {
+    flex: 1 1 0 !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow-y: auto !important;
+  }
+}
