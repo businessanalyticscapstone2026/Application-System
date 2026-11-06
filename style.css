@@ -7810,3 +7810,36 @@ body.registration-page .captcha-help {
 @keyframes submission-progress-spin {
   to { transform: rotate(360deg); }
 }
+
+
+/* QA FIX: respect the hidden attribute on generated file thumbnails.
+   The generic thumbnail display rule must not reveal an empty/broken image. */
+body.application-form-page .upload-box .upload-thumbnail[hidden] {
+  display: none !important;
+}
+
+/* QA FIX: keep native date controls inside their mobile form field.
+   iOS Safari gives date inputs an intrinsic width unless it is constrained. */
+body.application-form-page input[type="date"] {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  font-size: 16px;
+  padding-inline: 12px;
+  text-align: left;
+}
+
+body.application-form-page input[type="date"]::-webkit-date-and-time-value {
+  min-width: 0;
+  width: 100%;
+  text-align: left;
+}
+
+body.application-form-page .birth-row,
+body.application-form-page .birth-row > .field {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
