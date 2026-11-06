@@ -1821,3 +1821,102 @@ body.application-form-page .application-form-card {
     max-height: none !important;
   }
 }
+
+
+/* Definitive scroll layout: remove grid/flex percentage-height dependencies.
+   The form panel is absolutely bounded by the viewport and owns scrolling. */
+html:has(body.application-form-page),
+body.application-form-page {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+}
+body.application-form-page {
+  position: fixed !important;
+  inset: 0 !important;
+  margin: 0 !important;
+}
+body.application-form-page .page-frame {
+  position: fixed !important;
+  inset: 0 !important;
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+body.application-form-page .page-frame > .form-header,
+body.application-form-page .page-frame > .mobile-sticky-area,
+body.application-form-page .page-frame > .mobile-draft-status {
+  position: relative !important;
+  z-index: 20 !important;
+}
+body.application-form-page .page-frame > .form-wrapper {
+  position: fixed !important;
+  top: var(--application-form-top, 132px) !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  display: block !important;
+  width: auto !important;
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+}
+body.application-form-page .application-steps {
+  position: absolute !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  width: 24.5% !important;
+  height: auto !important;
+  max-height: none !important;
+  overflow: hidden !important;
+}
+body.application-form-page .application-form-card {
+  position: absolute !important;
+  top: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  left: 24.5% !important;
+  display: block !important;
+  width: auto !important;
+  height: auto !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  margin: 0 !important;
+  overflow-x: hidden !important;
+  overflow-y: scroll !important;
+  overscroll-behavior-y: contain !important;
+  -webkit-overflow-scrolling: touch !important;
+  scrollbar-gutter: stable;
+}
+@media (max-width: 900px) {
+  body.application-form-page .application-steps {
+    position: absolute !important;
+    top: 0 !important;
+    right: 0 !important;
+    bottom: auto !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    max-height: min(28dvh, 210px) !important;
+    overflow: hidden !important;
+  }
+  body.application-form-page .application-form-card {
+    top: var(--application-steps-height, 150px) !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    width: auto !important;
+    height: auto !important;
+    overflow-y: scroll !important;
+  }
+}

@@ -1847,6 +1847,13 @@
             if (rect.height > 0) bottom = Math.max(bottom, rect.bottom);
           });
           root.style.setProperty("--application-form-top", Math.max(0, Math.ceil(bottom)) + "px");
+          const steps = frame.querySelector(".application-steps");
+          if (steps) {
+            const stepsHeight = window.matchMedia("(max-width: 900px)").matches
+              ? Math.ceil(steps.getBoundingClientRect().height)
+              : 0;
+            root.style.setProperty("--application-steps-height", Math.max(0, stepsHeight) + "px");
+          }
         };
 
         updateFormViewport();
