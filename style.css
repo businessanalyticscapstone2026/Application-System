@@ -8048,3 +8048,193 @@ body.application-form-page #upload-files .upload-item {
     overflow: visible;
   }
 }
+
+
+/* Responsive QA pass: fluid controls, no horizontal page overflow, and
+   predictable sidebar/form behavior from small phones through wide desktops. */
+html:has(body.application-form-page),
+body.application-form-page {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+body.application-form-page *,
+body.application-form-page *::before,
+body.application-form-page *::after {
+  box-sizing: border-box;
+}
+
+body.application-form-page .page-frame,
+body.application-form-page .form-wrapper,
+body.application-form-page .application-steps,
+body.application-form-page .application-form-card,
+body.application-form-page .form-step-panel,
+body.application-form-page .section-block,
+body.application-form-page .row,
+body.application-form-page .field,
+body.application-form-page .upload-list,
+body.application-form-page .upload-item {
+  min-width: 0;
+  max-width: 100%;
+}
+
+body.application-form-page input:not([type="checkbox"]):not([type="radio"]),
+body.application-form-page input[type="date"],
+body.application-form-page input[type="file"],
+body.application-form-page select,
+body.application-form-page textarea {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+body.application-form-page input[type="date"] {
+  -webkit-appearance: none;
+  appearance: none;
+  min-height: 54px;
+  padding-inline: 12px;
+}
+
+body.application-form-page .row.two,
+body.application-form-page .row.two-thirds,
+body.application-form-page .row.three,
+body.application-form-page .row.four,
+body.application-form-page .row.five {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+body.application-form-page .form-step-actions { flex-wrap: wrap; }
+body.application-form-page .form-step-actions > * { min-width: 0; }
+body.application-form-page .upload-item {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+@media (min-width: 901px) {
+  body.application-form-page .form-wrapper {
+    grid-template-columns: minmax(270px, 0.32fr) minmax(0, 1fr);
+  }
+  body.application-form-page .application-steps {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    height: 100vh;
+    min-height: 100vh;
+    max-height: 100vh;
+    overflow: hidden;
+  }
+}
+
+@media (max-width: 900px) {
+  body.application-form-page .form-wrapper {
+    grid-template-columns: minmax(0, 1fr);
+    overflow: visible;
+  }
+  body.application-form-page .application-steps {
+    position: relative;
+    top: auto;
+    height: auto;
+    min-height: 0;
+    max-height: none;
+    overflow: visible;
+    padding: clamp(18px, 3vw, 26px);
+  }
+  body.application-form-page .steps-mark { display: none; }
+  body.application-form-page .application-steps h1 { margin-top: 0; }
+  body.application-form-page .steps-nav {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+    margin-top: 16px;
+  }
+  body.application-form-page .steps-nav a {
+    grid-template-columns: 32px minmax(0, 1fr);
+    min-width: 0;
+    gap: 7px;
+    padding: 8px 6px;
+    font-size: clamp(.68rem, 1.3vw, .82rem);
+  }
+  body.application-form-page .steps-nav a span {
+    width: 28px;
+    height: 28px;
+  }
+  body.application-form-page .steps-nav a small { display: none; }
+  body.application-form-page .form-side-progress { margin-top: 12px; }
+  body.application-form-page .application-form-card {
+    padding: clamp(18px, 3vw, 32px);
+  }
+}
+
+@media (max-width: 600px) {
+  body.application-form-page .page-frame {
+    width: 100%;
+    margin: 0;
+    border-radius: 0;
+  }
+  body.application-form-page .form-header { margin-bottom: 16px; }
+  body.application-form-page .page-frame > .form-header .header-bottom {
+    min-height: 54px;
+    padding: 8px 12px 8px 68px;
+    border-radius: 0;
+  }
+  body.application-form-page .page-frame > .form-header .logo-box {
+    left: 10px;
+    width: 46px;
+    height: 46px;
+  }
+  body.application-form-page .page-frame > .form-header .title-bar {
+    font-size: clamp(.78rem, 3.5vw, 1rem);
+    line-height: 1.25;
+  }
+  body.application-form-page .application-steps { padding: 16px 12px; }
+  body.application-form-page .steps-nav {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  body.application-form-page .steps-nav a {
+    grid-template-columns: 28px minmax(0, 1fr);
+    font-size: .72rem;
+  }
+  body.application-form-page .application-form-card {
+    padding: 18px 14px max(24px, env(safe-area-inset-bottom));
+  }
+  body.application-form-page .row.two,
+  body.application-form-page .row.two-thirds,
+  body.application-form-page .row.three,
+  body.application-form-page .row.four,
+  body.application-form-page .row.five,
+  body.application-form-page .upload-item {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  body.application-form-page .form-step-heading {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  body.application-form-page .form-required-legend { margin-left: 0; }
+  body.application-form-page .form-step-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  body.application-form-page .form-step-actions button,
+  body.application-form-page .form-step-actions a {
+    width: 100%;
+    max-width: 100%;
+  }
+  body.application-form-page .checkbox-options {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 360px) {
+  body.application-form-page .application-form-card { padding-inline: 10px; }
+  body.application-form-page .steps-nav { gap: 4px; }
+  body.application-form-page .steps-nav a {
+    padding: 6px 4px;
+    font-size: .66rem;
+  }
+  body.application-form-page .steps-nav a span {
+    width: 24px;
+    height: 24px;
+  }
+  body.application-form-page .section-block h2 { font-size: 1.35rem; }
+}
