@@ -8238,3 +8238,75 @@ body.application-form-page .upload-item {
   }
   body.application-form-page .section-block h2 { font-size: 1.35rem; }
 }
+
+
+/* Form-only scrolling: keep the browser viewport and page chrome stationary.
+   The main form panel is the sole vertical scroll container. */
+html:has(body.application-form-page) {
+  width: 100%; height: 100%; min-height: 0;
+  overflow: hidden !important;
+}
+body.application-form-page {
+  width: 100%; height: 100dvh !important; min-height: 0 !important;
+  max-height: 100dvh !important; margin: 0; overflow: hidden !important;
+}
+body.application-form-page .page-frame {
+  display: flex; flex-direction: column; width: 100%; height: 100dvh;
+  min-height: 0; max-height: 100dvh; margin: 0;
+  padding: 12px 14px 14px; overflow: hidden;
+}
+body.application-form-page .page-frame > .form-header {
+  flex: 0 0 auto; min-height: 0; margin: 0 0 12px;
+}
+body.application-form-page .form-wrapper {
+  display: grid; flex: 1 1 auto; min-height: 0; height: auto;
+  max-height: none; overflow: hidden; align-items: stretch;
+}
+body.application-form-page .application-steps {
+  min-height: 0; max-height: 100%; overflow: hidden;
+}
+body.application-form-page .application-form-card {
+  min-height: 0; height: 100%; max-height: 100%;
+  overflow-x: hidden; overflow-y: auto;
+  overscroll-behavior-y: contain; -webkit-overflow-scrolling: touch;
+  scrollbar-gutter: stable;
+}
+@media (min-width: 901px) {
+  body.application-form-page .form-wrapper {
+    grid-template-columns: minmax(270px, .32fr) minmax(0, 1fr);
+  }
+  body.application-form-page .application-steps {
+    position: relative; top: auto; align-self: stretch;
+    height: 100%; min-height: 0; max-height: 100%; overflow: hidden;
+  }
+}
+@media (max-width: 900px) {
+  body.application-form-page .page-frame { padding: 8px; }
+  body.application-form-page .page-frame > .form-header { margin-bottom: 8px; }
+  body.application-form-page .form-wrapper {
+    display: flex; flex-direction: column; flex: 1 1 auto;
+    min-height: 0; overflow: hidden;
+  }
+  body.application-form-page .application-steps {
+    flex: 0 0 auto; height: auto; min-height: 0;
+    max-height: min(34dvh, 250px); overflow: hidden;
+    padding: 12px 14px;
+  }
+  body.application-form-page .steps-nav { margin-top: 8px; }
+  body.application-form-page .form-side-progress { display: none; }
+  body.application-form-page .application-form-card {
+    flex: 1 1 auto; width: 100%; min-height: 0; height: auto;
+    max-height: none; padding: 18px 14px max(24px, env(safe-area-inset-bottom));
+    overflow-x: hidden; overflow-y: auto;
+  }
+}
+@media (max-width: 600px) {
+  body.application-form-page .page-frame { padding: 0; }
+  body.application-form-page .page-frame > .form-header { margin: 0; }
+  body.application-form-page .application-steps {
+    max-height: 30dvh; padding: 10px 12px; border-radius: 0;
+  }
+  body.application-form-page .application-form-card {
+    padding: 14px 12px max(24px, env(safe-area-inset-bottom));
+  }
+}
