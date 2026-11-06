@@ -7810,3 +7810,142 @@ body.registration-page .captcha-help {
 @keyframes submission-progress-spin {
   to { transform: rotate(360deg); }
 }
+
+
+/* QA FIX: respect the hidden attribute on generated file thumbnails.
+   The generic thumbnail display rule must not reveal an empty/broken image. */
+body.application-form-page .upload-box .upload-thumbnail[hidden] {
+  display: none !important;
+}
+
+/* QA FIX: keep native date controls inside their mobile form field.
+   iOS Safari gives date inputs an intrinsic width unless it is constrained. */
+body.application-form-page input[type="date"] {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  font-size: 16px;
+  padding-inline: 12px;
+  text-align: left;
+}
+
+body.application-form-page input[type="date"]::-webkit-date-and-time-value {
+  min-width: 0;
+  width: 100%;
+  text-align: left;
+}
+
+body.application-form-page .birth-row,
+body.application-form-page .birth-row > .field {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+
+/* QA FIX: keep the application form and its upload section fully scrollable.
+   Long upload steps must grow with their contents instead of being clipped
+   by a constrained grid/viewport on mobile browsers. */
+html:has(body.application-form-page),
+body.application-form-page {
+  min-height: 100%;
+  height: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+body.application-form-page .page-frame,
+body.application-form-page .form-wrapper,
+body.application-form-page .application-form-card,
+body.application-form-page .form-step-panel,
+body.application-form-page #upload-files {
+  min-height: 0;
+  height: auto;
+}
+
+body.application-form-page .form-wrapper {
+  overflow: visible;
+}
+
+body.application-form-page .application-steps {
+  border-radius: 20px 0 0 20px;
+}
+
+body.application-form-page .upload-item,
+body.application-form-page .upload-control,
+body.application-form-page .upload-box {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+body.application-form-page .upload-item {
+  align-items: start;
+}
+
+body.application-form-page .file-preview-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 20000;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
+  max-height: none;
+  overflow-y: auto;
+  padding: max(12px, env(safe-area-inset-top)) 12px max(12px, env(safe-area-inset-bottom));
+}
+
+body.application-form-page .file-preview-dialog {
+  width: min(920px, 100%);
+  max-height: calc(100dvh - 24px);
+  min-height: 0;
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+body.application-form-page .file-preview-body {
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+body.application-form-page .file-preview-body img,
+body.application-form-page .file-preview-body iframe {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: calc(100dvh - 150px);
+  object-fit: contain;
+}
+
+body.application-form-page .file-preview-body iframe {
+  height: min(72dvh, 760px);
+  min-height: 240px;
+}
+
+body.application-form-page .file-preview-body img[hidden],
+body.application-form-page .file-preview-body iframe[hidden] {
+  display: none !important;
+}
+
+@media (max-width: 760px) {
+  body.application-form-page .form-wrapper {
+    overflow: visible;
+  }
+
+  body.application-form-page .application-steps {
+    border-radius: 16px 16px 0 0;
+  }
+
+  body.application-form-page .upload-item {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  body.application-form-page .file-preview-dialog {
+    width: 100%;
+    max-height: calc(100dvh - 24px);
+  }
+}
