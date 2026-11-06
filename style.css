@@ -7949,3 +7949,62 @@ body.application-form-page .file-preview-body iframe[hidden] {
     max-height: calc(100dvh - 24px);
   }
 }
+
+
+/* QA FIX: the document-upload step must expand to its full content height.
+   Keep the page itself as the scroll container on narrow screens, rather than
+   letting a nested form card/section clip the remaining upload controls. */
+html:has(body.application-form-page) {
+  min-height: 100%;
+  height: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scroll-behavior: auto;
+}
+
+body.application-form-page {
+  min-height: 100dvh;
+  height: auto !important;
+  max-height: none !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+}
+
+body.application-form-page .page-frame,
+body.application-form-page .form-wrapper,
+body.application-form-page .application-form-card,
+body.application-form-page #upload-files,
+body.application-form-page #upload-files .upload-list,
+body.application-form-page #upload-files .upload-item,
+body.application-form-page #upload-files .upload-control {
+  height: auto !important;
+  max-height: none !important;
+  min-height: 0;
+  overflow: visible !important;
+}
+
+body.application-form-page .application-form-card {
+  align-self: stretch;
+}
+
+body.application-form-page #upload-files .upload-list {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px;
+}
+
+body.application-form-page #upload-files .upload-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: start;
+}
+
+@media (max-width: 760px) {
+  body.application-form-page #upload-files .upload-item {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  body.application-form-page .application-form-card {
+    padding-bottom: max(32px, env(safe-area-inset-bottom));
+  }
+}
