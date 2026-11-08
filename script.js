@@ -3,7 +3,7 @@
 // rendering or form interaction, but can absorb a Render cold start while
 // applicants are reading and completing the form.
 if (document.body?.classList.contains("application-form-page")) {
-  fetch("https://osca-backend.onrender.com/health", {
+  fetch("/health", {
     method: "GET",
     mode: "cors",
     cache: "no-store",
@@ -14,7 +14,7 @@ if (document.body?.classList.contains("application-form-page")) {
 }
 
 const DOCUMENT_VERIFICATION_API =
-  "https://osca-document-verification.onrender.com/screen-document";
+  "/screen-document";
 
 function blockNonNumericInput() {
   const ageField = document.getElementById("age");
@@ -988,13 +988,13 @@ async function loadApplicationForEditing() {
     if (isDuplicateUpdate) {
 
       loadUrl =
-        "https://osca-backend.onrender.com/api/applications/duplicate/verified/" +
+        "/api/applications/duplicate/verified/" +
         encodeURIComponent(sessionId);
 
     } else {
 
       loadUrl =
-        "https://osca-backend.onrender.com/api/applications/" +
+        "/api/applications/" +
         encodeURIComponent(applicationId);
     }
 
@@ -2038,11 +2038,11 @@ function setupFaceCamera() {
 
 
   const FACE_VERIFICATION_API =
-    "https://application-system-vcv6.onrender.com/verify-face";
+    "/verify-face";
   const AGE_VERIFICATION_API =
-    "https://osca-age-verification.onrender.com/verify-age";
+    "/verify-age";
   const DOCUMENT_VERIFICATION_API =
-    "https://osca-document-verification.onrender.com/screen-document";
+    "/screen-document";
 
   const dobInput =
     document.getElementById("dob");
@@ -4734,7 +4734,7 @@ function setupFormSubmitConfirmation() {
     if (isDuplicateUpdate) {
 
       requestUrl =
-        "https://osca-backend.onrender.com/api/applications/duplicate/verified/" +
+        "/api/applications/duplicate/verified/" +
         encodeURIComponent(
           duplicateSessionId
         );
@@ -4744,7 +4744,7 @@ function setupFormSubmitConfirmation() {
     } else if (isPendingEdit) {
 
       requestUrl =
-        "https://osca-backend.onrender.com/api/applications/" +
+        "/api/applications/" +
         encodeURIComponent(
           applicationId
         );
@@ -4754,7 +4754,7 @@ function setupFormSubmitConfirmation() {
     } else {
 
       requestUrl =
-        "https://osca-backend.onrender.com/api/applications/register";
+        "/api/applications/register";
 
       requestMethod = "POST";
     }
@@ -5924,7 +5924,7 @@ function setupVerificationPage() {
     return;
   }
 
-  const API_BASE_URL = 'https://osca-backend.onrender.com/api/applications';
+  const API_BASE_URL = '/api/applications';
   let currentApplicationId = "";
   let currentApplicationStatus = "";
 
@@ -6676,7 +6676,7 @@ function setupRequestIdModal() {
 
         const response =
           await fetch(
-            "https://osca-backend.onrender.com/api/applications/" +
+            "/api/applications/" +
             encodeURIComponent(applicationId) +
             "/id-request",
             {
@@ -6833,7 +6833,7 @@ async function verifyDuplicateApplicant(sessionId) {
     document.getElementById("barangay")?.value.trim() || "";
 
   const response = await fetch(
-    "https://osca-backend.onrender.com/api/applications/duplicate/verify",
+    "/api/applications/duplicate/verify",
     {
       method: "POST",
       headers: {
@@ -7018,7 +7018,7 @@ function showDuplicateRecordModal(
 
       const recoveryResponse =
         await fetch(
-          "https://osca-backend.onrender.com/api/applications/duplicate/recover/" +
+          "/api/applications/duplicate/recover/" +
           encodeURIComponent(
             recoverSessionId
           )
@@ -7610,7 +7610,7 @@ function setupOscaChatbot() {
 
       const response =
         await fetch(
-          "https://osca-backend.onrender.com/api/chatbot/message",
+          "/api/chatbot/message",
           {
             method: "POST",
 
