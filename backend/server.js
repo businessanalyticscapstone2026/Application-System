@@ -22,7 +22,7 @@ function sendHealthResponse(req, res) {
 
 app.disable("x-powered-by");
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: "2mb" }));
 
 // Lightweight probes for Render health checks and external uptime monitors.
 app.get("/", (req, res) => {
