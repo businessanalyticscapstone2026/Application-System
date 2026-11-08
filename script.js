@@ -6580,42 +6580,34 @@ function setupRequestIdModal() {
             applicationId
           );
 
-        const formData =
-          new FormData();
+        const uploadedFiles = {};
+        for (const [fileType, file] of Object.entries(temporaryFiles)) {
+          if (file) {
+            uploadedFiles[fileType] = [
+              await uploadFileToPrivateStorage(file)
+            ];
+          }
+        }
 
         const requestPayload = {
-          applicationChanges:
-            applicationChanges,
+          applicationChanges: applicationChanges,
           reason: reason,
           otherReason: otherReason
         };
 
-        formData.append(
-          "payload",
-          JSON.stringify(requestPayload)
-        );
-
-        Object.entries(
-          temporaryFiles
-        ).forEach(function ([fileType, file]) {
-          if (file) {
-            formData.append(
-              fileType,
-              file
-            );
+        const response = await fetch(
+          "/api/applications/" +
+          encodeURIComponent(applicationId) +
+          "/id-request",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              payload: requestPayload,
+              files: uploadedFiles
+            })
           }
-        });
-
-        const response =
-          await fetch(
-            "/api/applications/" +
-            encodeURIComponent(applicationId) +
-            "/id-request",
-            {
-              method: "POST",
-              body: formData
-            }
-          );
+        );
 
         const result =
           await response.json();
