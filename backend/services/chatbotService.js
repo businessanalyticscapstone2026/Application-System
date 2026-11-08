@@ -1,8 +1,20 @@
-import { GoogleGenAI } from "@google/genai";
+// Load the Google AI SDK only when a message needs Gemini. Most common
+// OSCA questions are answered by the local FAQ list and should not pay the
+// SDK initialization cost during backend startup.
+let aiClient;
 
-const ai = new GoogleGenAI({
-  apiKey: process.env.GEMINI_API_KEY
-});
+async function getAiClient() {
+  if (aiClient) return aiClient;
+
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    throw new Error("GEMINI_API_KEY is not configured.");
+  }
+
+  const { GoogleGenAI } = await import("@google/genai");
+  aiClient = new GoogleGenAI({ apiKey });
+  return aiClient;
+}
 
 const LOCAL_FAQS = [
 
@@ -507,6 +519,7 @@ Respond according to the instructions above.
 
   }
 
+  const ai = await getAiClient();
   const interaction =
     await ai.interactions.create(
       request

@@ -1,3 +1,18 @@
+// Start waking the Application System backend as soon as the application
+// form opens. This request is deliberately non-blocking: it does not delay
+// rendering or form interaction, but can absorb a Render cold start while
+// applicants are reading and completing the form.
+if (document.body?.classList.contains("application-form-page")) {
+  fetch("https://osca-backend.onrender.com/health", {
+    method: "GET",
+    mode: "cors",
+    cache: "no-store",
+    keepalive: true
+  }).catch(() => {
+    // The actual form flow handles backend errors when an API action is used.
+  });
+}
+
 const DOCUMENT_VERIFICATION_API =
   "https://osca-document-verification.onrender.com/screen-document";
 
