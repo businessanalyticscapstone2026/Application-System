@@ -4668,12 +4668,6 @@ function setupFormSubmitConfirmation() {
       Boolean(duplicateSessionId);
 
     const files = {};
-    const uploadClient = getSupabaseClient();
-
-    if (!uploadClient?.storage?.from) {
-      throw new Error("Secure file upload is not available. Please refresh the page and try again.");
-    }
-
     const uploadFields = [
       ["valid_id_front", "upload-valid-id-front"],
       ["valid_id_back", "upload-valid-id-back"],
@@ -4694,15 +4688,18 @@ function setupFormSubmitConfirmation() {
         body: JSON.stringify({ fileName: file.name, contentType: file.type, size: file.size })
       });
       const ticket = await ticketResponse.json().catch(() => ({}));
-      if (!ticketResponse.ok || !ticket.success || !ticket.path || !ticket.token) {
+      if (!ticketResponse.ok || !ticket.success || !ticket.path || !ticket.uploadUrl) {
         throw new Error(ticket.message || "Unable to prepare secure upload for " + file.name + ".");
       }
 
-      const { error: uploadError } = await uploadClient.storage
-        .from("documents")
-        .uploadToSignedUrl(ticket.path, ticket.token, file, { contentType: file.type, upsert: false });
-      if (uploadError) {
-        throw new Error("Unable to upload " + file.name + ": " + uploadError.message);
+      const uploadResponse = await fetch(ticket.uploadUrl, {
+        method: "POST",
+        headers: { "Content-Type": file.type, "x-upsert": "false" },
+        body: file
+      });
+      if (!uploadResponse.ok) {
+        const uploadError = await uploadResponse.json().catch(() => ({}));
+        throw new Error("Unable to upload " + file.name + ": " + (uploadError.message || uploadResponse.statusText));
       }
 
       files[fieldName] = [{ path: ticket.path, originalname: file.name, mimetype: file.type, size: file.size }];
