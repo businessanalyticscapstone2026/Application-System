@@ -4667,65 +4667,45 @@ function setupFormSubmitConfirmation() {
       mode === "duplicate-update" &&
       Boolean(duplicateSessionId);
 
-    const formData = new FormData();
+    const files = {};
+    const uploadClient = getSupabaseClient();
 
-    formData.append("payload", JSON.stringify(payload));
-
-    const validIdFront =
-      document.getElementById("upload-valid-id-front")?.files?.[0];
-
-    if (validIdFront) {
-      formData.append("valid_id_front", validIdFront);
+    if (!uploadClient?.storage?.from) {
+      throw new Error("Secure file upload is not available. Please refresh the page and try again.");
     }
 
-    const validIdBack =
-      document.getElementById("upload-valid-id-back")?.files?.[0];
+    const uploadFields = [
+      ["valid_id_front", "upload-valid-id-front"],
+      ["valid_id_back", "upload-valid-id-back"],
+      ["latest_photo", "upload-latest-photo"],
+      ["birth_certificate", "upload-birth-certificate"],
+      ["community_tax_certificate", "upload-cedula"],
+      ["signature", "upload-signature"],
+      ["verification_photo", "upload-verification"]
+    ];
 
-    if (validIdBack) {
-      formData.append("valid_id_back", validIdBack);
-    }
+    for (const [fieldName, inputId] of uploadFields) {
+      const file = document.getElementById(inputId)?.files?.[0];
+      if (!file) continue;
 
-    const latestPhoto =
-      document.getElementById("upload-latest-photo")?.files?.[0];
+      const ticketResponse = await fetch("/api/applications/upload-ticket", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fileName: file.name, contentType: file.type, size: file.size })
+      });
+      const ticket = await ticketResponse.json().catch(() => ({}));
+      if (!ticketResponse.ok || !ticket.success || !ticket.path || !ticket.token) {
+        throw new Error(ticket.message || "Unable to prepare secure upload for " + file.name + ".");
+      }
 
-    if (latestPhoto) {
-      formData.append("latest_photo", latestPhoto);
-    }
+      const { error: uploadError } = await uploadClient.storage
+        .from("documents")
+        .uploadToSignedUrl(ticket.path, ticket.token, file, { contentType: file.type, upsert: false });
+      if (uploadError) {
+        throw new Error("Unable to upload " + file.name + ": " + uploadError.message);
+      }
 
-    const birthCertificate =
-      document.getElementById("upload-birth-certificate")?.files?.[0];
-
-    if (birthCertificate) {
-      formData.append("birth_certificate", birthCertificate);
-    }
-
-    const communityTax =
-      document.getElementById("upload-cedula")?.files?.[0];
-
-    if (communityTax) {
-      formData.append(
-        "community_tax_certificate",
-        communityTax
-      );
-    }
-
-    const signature =
-      document.getElementById("upload-signature")?.files?.[0];
-
-    if (signature) {
-      formData.append("signature", signature);
-    }
-
-    const verificationPhoto =
-      document.getElementById(
-        "upload-verification"
-      )?.files?.[0];
-
-    if (verificationPhoto) {
-      formData.append(
-        "verification_photo",
-        verificationPhoto
-      );
+      files[fieldName] = [{ path: ticket.path, originalname: file.name, mimetype: file.type, size: file.size }];
     }
 
     let requestUrl = "";
@@ -4761,7 +4741,8 @@ function setupFormSubmitConfirmation() {
 
     const response = await fetch(requestUrl, {
       method: requestMethod,
-      body: formData
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ payload, files })
     });
 
     const responseText =
