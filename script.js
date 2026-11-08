@@ -36,12 +36,11 @@ async function uploadFileToPrivateStorage(file) {
     throw new Error(ticket.message || "Unable to prepare secure upload.");
   }
   const uploadResponse = await fetch(ticket.uploadUrl, {
-    method: "POST",
+    method: "PUT",
     headers: {
-          "Content-Type": file.type,
-          "Authorization": "Bearer " + ticket.token,
-          "x-upsert": "false"
-        },
+      "Content-Type": file.type,
+      "x-upsert": "false"
+    },
     body: file
   });
   if (!uploadResponse.ok) {
