@@ -58,6 +58,27 @@ export function isUploadedFile(file) {
     );
 }
 
+export async function hydrateUploadedFiles(files) {
+    const hydrated = {};
+    for (const [field, entries] of Object.entries(files || {})) {
+        if (!Array.isArray(entries)) continue;
+        hydrated[field] = [];
+        for (const file of entries) {
+            if (!isUploadedFile(file)) {
+                hydrated[field].push(file);
+                continue;
+            }
+            const { data, error } = await supabase.storage
+                .from("documents")
+                .download(file.path);
+            if (error) throw error;
+            const buffer = Buffer.from(await data.arrayBuffer());
+            hydrated[field].push({ ...file, buffer });
+        }
+    }
+    return hydrated;
+}
+
 export async function uploadFile(applicationId, file, folder) {
     if (!file) return null;
 
