@@ -12,7 +12,7 @@ export async function verificationHealth(req, res) {
         const base = SERVICE_URLS[name];
         if (!base) return [name, { ok: false, error: "Service binding is missing." }];
         try {
-            const url = new URL("health", base.replace(/\\/+$/, "") + "/");
+            const url = new URL("health", base.replace(/\/+$/, "") + "/");
             const response = await fetch(url, {
                 method: "GET",
                 signal: AbortSignal.timeout(8000),
