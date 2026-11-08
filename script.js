@@ -2070,11 +2070,11 @@ function setupFaceCamera() {
 
 
   const FACE_VERIFICATION_API =
-    "/verify-face";
+    "/api/applications/verify-face";
   const AGE_VERIFICATION_API =
-    "/verify-age";
+    "/api/applications/verify-age";
   const DOCUMENT_VERIFICATION_API =
-    "/screen-document";
+    "/api/applications/screen-document";
 
   const dobInput =
     document.getElementById("dob");
@@ -2583,41 +2583,21 @@ function setupFaceCamera() {
         // Create request for FastAPI
         // ---------------------------------------------
 
-        const verificationData =
-          new FormData();
-
-
-        /*
-         * source_image = Valid ID
-         * target_image = Live camera capture
-         */
-        verificationData.append(
-          "source_image",
-          validIdFile
-        );
-
-
-        verificationData.append(
-          "target_image",
-          capturedFile
-        );
-
-
         try {
-
-          // -------------------------------------------
-          // Call Python facial-verification API
-          // -------------------------------------------
-
-          const response =
-            await fetch(
-              FACE_VERIFICATION_API,
-              {
-                method: "POST",
-                body: verificationData
+          const [storedId, storedFace] = await Promise.all([
+            uploadFileToPrivateStorage(validIdFile),
+            uploadFileToPrivateStorage(capturedFile)
+          ]);
+          const response = await fetch("/api/applications/verify-face", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              files: {
+                valid_id_front: [storedId],
+                verification_photo: [storedFace]
               }
-            );
-
+            })
+          });
 
           let result;
 
@@ -2921,28 +2901,15 @@ function setupFaceCamera() {
       }
 
 
-      const ageVerificationData =
-        new FormData();
-
-      ageVerificationData.append(
-        "document",
-        validIdFile
-      );
-
-      ageVerificationData.append(
-        "date_of_birth",
-        enteredBirthDate
-      );
-
-
-      const response =
-        await fetch(
-          AGE_VERIFICATION_API,
-          {
-            method: "POST",
-            body: ageVerificationData
-          }
-        );
+      const storedId = await uploadFileToPrivateStorage(validIdFile);
+      const response = await fetch(AGE_VERIFICATION_API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          files: { valid_id_front: [storedId] },
+          date_of_birth: enteredBirthDate
+        })
+      });
 
 
       let result;
