@@ -20,7 +20,7 @@ function readRequestPayload(req) {
 }
 
 async function readRequestFiles(req) {
-    if (req.files && Object.keys(req.files).length) return req.files;
+    if (await readRequestFiles(req) && Object.keys(await readRequestFiles(req)).length) return await readRequestFiles(req);
     return await hydrateUploadedFiles(req.body?.files || {});
 }
 
@@ -174,7 +174,7 @@ export async function updateApplication(req, res) {
         const result = await updateApplicationService(
             applicationId,
             payload,
-            req.files
+            await readRequestFiles(req)
         );
 
         return res.status(200).json({
@@ -209,7 +209,7 @@ export async function submitIdRequest(req, res) {
             await submitIdRequestService(
                 applicationId,
                 payload,
-                req.files
+                await readRequestFiles(req)
             );
 
         return res.status(201).json({
@@ -362,13 +362,13 @@ export async function updateVerifiedDuplicateRecord(
         }
 
         const payload =
-            JSON.parse(req.body.payload);
+            readRequestPayload(req);
 
         const result =
             await updateVerifiedDuplicateApplicationService(
                 sessionId,
                 payload,
-                req.files
+                await readRequestFiles(req)
             );
 
         return res.status(200).json({
