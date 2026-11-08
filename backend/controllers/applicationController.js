@@ -169,7 +169,7 @@ export async function updateApplication(req, res) {
 
     try {
 
-        const payload = JSON.parse(req.body.payload);
+        const payload = readRequestPayload(req);
 
         const result = await updateApplicationService(
             applicationId,
@@ -203,7 +203,7 @@ export async function submitIdRequest(req, res) {
 
     try {
         const payload =
-            JSON.parse(req.body.payload);
+            readRequestPayload(req);
 
         const result =
             await submitIdRequestService(
