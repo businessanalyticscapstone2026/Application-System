@@ -16,8 +16,12 @@ if (document.body?.classList.contains("application-form-page")) {
 const DOCUMENT_VERIFICATION_API =
   "/api/applications/screen-document";
 
+const privateUploadCache = new WeakMap();
+
 async function uploadFileToPrivateStorage(file) {
   if (!file) throw new Error("A file is required for upload.");
+  if (privateUploadCache.has(file)) return privateUploadCache.get(file);
+  const uploadPromise = (async function () {
   const ticketResponse = await fetch("/api/applications/upload-ticket", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -50,6 +54,14 @@ async function uploadFileToPrivateStorage(file) {
     mimetype: file.type,
     size: file.size
   };
+  })();
+  privateUploadCache.set(file, uploadPromise);
+  try {
+    return await uploadPromise;
+  } catch (error) {
+    privateUploadCache.delete(file);
+    throw error;
+  }
 }
 
 function blockNonNumericInput() {
@@ -4645,29 +4657,7 @@ function setupFormSubmitConfirmation() {
 
     for (const [fieldName, inputId] of uploadFields) {
       const file = document.getElementById(inputId)?.files?.[0];
-      if (!file) continue;
-
-      const ticketResponse = await fetch("/api/applications/upload-ticket", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ fileName: file.name, contentType: file.type, size: file.size })
-      });
-      const ticket = await ticketResponse.json().catch(() => ({}));
-      if (!ticketResponse.ok || !ticket.success || !ticket.path || !ticket.uploadUrl) {
-        throw new Error(ticket.message || "Unable to prepare secure upload for " + file.name + ".");
-      }
-
-      const uploadResponse = await fetch(ticket.uploadUrl, {
-        method: "POST",
-        headers: { "Content-Type": file.type, "x-upsert": "false" },
-        body: file
-      });
-      if (!uploadResponse.ok) {
-        const uploadError = await uploadResponse.json().catch(() => ({}));
-        throw new Error("Unable to upload " + file.name + ": " + (uploadError.message || uploadResponse.statusText));
-      }
-
-      files[fieldName] = [{ path: ticket.path, originalname: file.name, mimetype: file.type, size: file.size }];
+      if (file) files[fieldName] = [await uploadFileToPrivateStorage(file)];
     }
 
     let requestUrl = "";
