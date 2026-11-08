@@ -1,0 +1,82 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "services": {
+    "backend": {
+      "root": "backend",
+      "framework": "express",
+      "bindings": [
+        {
+          "type": "service",
+          "service": "face-verification",
+          "format": "url",
+          "env": "FACE_VERIFICATION_URL"
+        }
+      ]
+    },
+    "document-verification": {
+      "root": "document-verification",
+      "framework": "fastapi",
+      "entrypoint": "main:app"
+    },
+    "face-verification": {
+      "root": "face-verification",
+      "framework": "fastapi",
+      "entrypoint": "main:app"
+    },
+    "age-verification": {
+      "root": "age-verification",
+      "framework": "fastapi",
+      "entrypoint": "main:app"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/screen-document",
+      "destination": {
+        "service": "document-verification"
+      }
+    },
+    {
+      "source": "/test-national-id-qr",
+      "destination": {
+        "service": "document-verification"
+      }
+    },
+    {
+      "source": "/verify-age",
+      "destination": {
+        "service": "age-verification"
+      }
+    },
+    {
+      "source": "/verify-face",
+      "destination": {
+        "service": "face-verification"
+      }
+    },
+    {
+      "source": "/detect-face",
+      "destination": {
+        "service": "face-verification"
+      }
+    },
+    {
+      "source": "/check-liveness",
+      "destination": {
+        "service": "face-verification"
+      }
+    },
+    {
+      "source": "/test-image",
+      "destination": {
+        "service": "face-verification"
+      }
+    },
+    {
+      "source": "/(.*)",
+      "destination": {
+        "service": "backend"
+      }
+    }
+  ]
+}
