@@ -19,10 +19,14 @@ export async function verificationHealth(req, res) {
                 headers: { "Accept": "application/json" }
             });
             const body = await response.json().catch(() => null);
+            const configured = name === "face"
+                ? Object.values(body?.models || {}).every(Boolean) && Object.keys(body?.models || {}).length === 3
+                : body?.ocrConfigured === true;
             return [name, {
-                ok: response.ok && Boolean(body),
+                ok: response.ok && body?.success === true && configured,
                 status: response.status,
-                service: body?.service || null
+                configured,
+                details: name === "face" ? body?.models || null : { ocrConfigured: body?.ocrConfigured === true }
             }];
         } catch (error) {
             return [name, { ok: false, error: error.name === "TimeoutError" ? "Health check timed out." : "Service is unreachable." }];
