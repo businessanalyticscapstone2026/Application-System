@@ -13,13 +13,15 @@ import {
     updateDocumentAuthentication,
     listStaffApplications,
     getStaffApplicationDetail,
-    updateStaffApplicationStatus
+    updateStaffApplicationStatus,
+    createApplicationUploadTicket
 } from "../controllers/applicationController.js";
 
 import { getApplicationStatus } from "../controllers/statusController.js";
 
 const router = express.Router();
 
+router.post("/upload-ticket", createApplicationUploadTicket);
 router.get("/test", testDatabase);
 router.get("/staff", listStaffApplications);
 router.get("/staff/:applicationId", getStaffApplicationDetail);
