@@ -36,6 +36,7 @@ async function uploadFileToPrivateStorage(file) {
     throw new Error(ticket.message || "Unable to prepare secure upload.");
   }
   const uploadBody = new FormData();
+  uploadBody.append("cacheControl", "3600");
   uploadBody.append("", file);
   const uploadResponse = await fetch(ticket.uploadUrl, {
     method: "PUT",
