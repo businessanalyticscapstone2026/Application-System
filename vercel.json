@@ -13,6 +13,18 @@
           "service": "face-verification",
           "format": "url",
           "env": "FACE_VERIFICATION_URL"
+        },
+        {
+          "type": "service",
+          "service": "document-verification",
+          "format": "url",
+          "env": "DOCUMENT_VERIFICATION_URL"
+        },
+        {
+          "type": "service",
+          "service": "age-verification",
+          "format": "url",
+          "env": "AGE_VERIFICATION_URL"
         }
       ]
     },
