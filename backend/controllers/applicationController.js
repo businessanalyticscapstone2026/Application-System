@@ -20,7 +20,7 @@ function readRequestPayload(req) {
 }
 
 async function readRequestFiles(req) {
-    if (await readRequestFiles(req) && Object.keys(await readRequestFiles(req)).length) return await readRequestFiles(req);
+    if (req.files && Object.keys(req.files).length) return req.files;
     return await hydrateUploadedFiles(req.body?.files || {});
 }
 
