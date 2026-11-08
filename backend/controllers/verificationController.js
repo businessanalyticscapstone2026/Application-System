@@ -6,6 +6,36 @@ const SERVICE_URLS = {
     age: process.env.AGE_VERIFICATION_URL
 };
 
+export async function verificationHealth(req, res) {
+    const names = ["face", "document", "age"];
+    const checks = await Promise.all(names.map(async (name) => {
+        const base = SERVICE_URLS[name];
+        if (!base) return [name, { ok: false, error: "Service binding is missing." }];
+        try {
+            const url = new URL("health", base.replace(/\\/+$/, "") + "/");
+            const response = await fetch(url, {
+                method: "GET",
+                signal: AbortSignal.timeout(8000),
+                headers: { "Accept": "application/json" }
+            });
+            const body = await response.json().catch(() => null);
+            return [name, {
+                ok: response.ok && Boolean(body),
+                status: response.status,
+                service: body?.service || null
+            }];
+        } catch (error) {
+            return [name, { ok: false, error: error.name === "TimeoutError" ? "Health check timed out." : "Service is unreachable." }];
+        }
+    }));
+    const services = Object.fromEntries(checks);
+    const healthy = Object.values(services).every((item) => item.ok);
+    return res.status(healthy ? 200 : 503).json({
+        success: healthy,
+        services
+    });
+}
+
 async function forwardMultipart(service, endpoint, fields, files) {
     const base = SERVICE_URLS[service];
     if (!base) throw Object.assign(new Error(service + " verification service is not configured."), { status: 503 });
