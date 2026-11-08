@@ -12,7 +12,24 @@ import {
     updateDocumentAuthentication as updateDocumentAuthenticationService
 } from "../services/applicationService.js";
 import { sendApplicationIdSms } from "../services/smsService.js";
+import { createUploadTicket } from "../services/storageService.js";
 
+
+export async function createApplicationUploadTicket(req, res) {
+    try {
+        const ticket = await createUploadTicket({
+            fileName: req.body?.fileName,
+            contentType: req.body?.contentType,
+            size: req.body?.size
+        });
+        return res.status(201).json({ success: true, ...ticket });
+    } catch (error) {
+        return res.status(error.status || 500).json({
+            success: false,
+            message: error.status ? error.message : "Unable to prepare secure file upload."
+        });
+    }
+}
 
 export async function testDatabase(req, res) {
     const { data, error } = await supabase
