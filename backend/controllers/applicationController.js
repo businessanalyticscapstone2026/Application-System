@@ -12,7 +12,17 @@ import {
     updateDocumentAuthentication as updateDocumentAuthenticationService
 } from "../services/applicationService.js";
 import { sendApplicationIdSms } from "../services/smsService.js";
-import { createUploadTicket } from "../services/storageService.js";
+import { createUploadTicket, hydrateUploadedFiles } from "../services/storageService.js";
+
+function readRequestPayload(req) {
+    const raw = req.body?.payload;
+    return typeof raw === "string" ? JSON.parse(raw) : (raw || {});
+}
+
+async function readRequestFiles(req) {
+    if (req.files && Object.keys(req.files).length) return req.files;
+    return await hydrateUploadedFiles(req.body?.files || {});
+}
 
 
 export async function createApplicationUploadTicket(req, res) {
@@ -48,9 +58,9 @@ export async function registerApplication(req, res) {
 
     try {
 
-        const payload = JSON.parse(req.body.payload);
+        const payload = readRequestPayload(req);
 
-        const result = await registerApplicationService(payload, req.files);
+        const result = await registerApplicationService(payload, await readRequestFiles(req));
         if (result.duplicate) {
             return res.status(409).json({
                 success: false,
