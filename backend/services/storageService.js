@@ -40,18 +40,11 @@ export async function createUploadTicket({ fileName, contentType, size }) {
         .createSignedUploadUrl(pathName, { upsert: false });
 
     if (error) throw error;
-    const projectUrl = process.env.SUPABASE_URL;
-    if (!projectUrl) throw new Error("Supabase URL is not configured.");
     const storedPath = data.path || pathName;
-    const uploadUrl = new URL(
-        "/storage/v1/object/upload/sign/documents/" + storedPath.split("/").map(encodeURIComponent).join("/"),
-        projectUrl
-    );
-    uploadUrl.searchParams.set("token", data.token);
     return {
         path: storedPath,
         token: data.token,
-        uploadUrl: uploadUrl.toString()
+        uploadUrl: data.signedUrl
     };
 }
 
