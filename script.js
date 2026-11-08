@@ -33,7 +33,11 @@ async function uploadFileToPrivateStorage(file) {
   }
   const uploadResponse = await fetch(ticket.uploadUrl, {
     method: "POST",
-    headers: { "Content-Type": file.type, "x-upsert": "false" },
+    headers: {
+          "Content-Type": file.type,
+          "Authorization": "Bearer " + ticket.token,
+          "x-upsert": "false"
+        },
     body: file
   });
   if (!uploadResponse.ok) {
