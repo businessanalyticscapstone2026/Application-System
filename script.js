@@ -14,7 +14,39 @@ if (document.body?.classList.contains("application-form-page")) {
 }
 
 const DOCUMENT_VERIFICATION_API =
-  "/screen-document";
+  "/api/applications/screen-document";
+
+async function uploadFileToPrivateStorage(file) {
+  if (!file) throw new Error("A file is required for upload.");
+  const ticketResponse = await fetch("/api/applications/upload-ticket", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      fileName: file.name,
+      contentType: file.type,
+      size: file.size
+    })
+  });
+  const ticket = await ticketResponse.json().catch(() => ({}));
+  if (!ticketResponse.ok || !ticket.success || !ticket.path || !ticket.uploadUrl) {
+    throw new Error(ticket.message || "Unable to prepare secure upload.");
+  }
+  const uploadResponse = await fetch(ticket.uploadUrl, {
+    method: "POST",
+    headers: { "Content-Type": file.type, "x-upsert": "false" },
+    body: file
+  });
+  if (!uploadResponse.ok) {
+    const failure = await uploadResponse.json().catch(() => ({}));
+    throw new Error(failure.message || "Unable to upload " + file.name + ".");
+  }
+  return {
+    path: ticket.path,
+    originalname: file.name,
+    mimetype: file.type,
+    size: file.size
+  };
+}
 
 function blockNonNumericInput() {
   const ageField = document.getElementById("age");
@@ -4003,59 +4035,21 @@ async function verifyRequiredDocuments() {
       );
     }
 
-    const formData =
-      new FormData();
-
-    formData.append(
-      "document",
-      file
-    );
-
-    formData.append(
-      "document_type",
-      documentType
-    );
-
-    formData.append(
-      "first_name",
-      firstName
-    );
-
-    formData.append(
-      "middle_name",
-      middleName
-    );
-
-    formData.append(
-      "surname",
-      surname
-    );
-
-    formData.append(
-      "date_of_birth",
-      dateOfBirth
-    );
-
-    formData.append(
-      "place_of_birth",
-      placeOfBirth
-    );
-
-    formData.append(
-      "address",
-      addressForVerification
-    );
-
-
-    const response =
-      await fetch(
-        DOCUMENT_VERIFICATION_API,
-        {
-          method: "POST",
-          body: formData
-        }
-      );
-
+    const storedDocument = await uploadFileToPrivateStorage(file);
+    const response = await fetch(DOCUMENT_VERIFICATION_API, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        files: { document: [storedDocument] },
+        document_type: documentType,
+        first_name: firstName,
+        middle_name: middleName,
+        surname: surname,
+        date_of_birth: dateOfBirth,
+        place_of_birth: placeOfBirth,
+        address: addressForVerification
+      })
+    });
 
     let result;
 
