@@ -37,8 +37,8 @@
         </div>
       </div>
       <p class="mobile-draft-status" aria-live="polite"><span class="material-symbols-outlined" aria-hidden="true">cloud_done</span><span>Draft saved</span></p>
-      <button class="steps-backdrop" id="steps-backdrop" type="button" aria-label="Close application sections" hidden></button>
       <main class="form-wrapper">
+      <button class="steps-backdrop" id="steps-backdrop" type="button" aria-label="Close application sections" hidden></button>
       <aside class="application-steps" id="application-steps" aria-label="Application sections" aria-hidden="true" tabindex="-1" inert>
         <div class="mobile-drawer-heading"><strong>Application sections</strong><button class="mobile-steps-close" type="button" aria-label="Close application sections"><span class="material-symbols-outlined" aria-hidden="true">close</span></button></div>
         <div class="steps-mark"><img src="OSCA Bauan Logo.jpg" alt="OSCA logo" /></div>
@@ -1888,6 +1888,7 @@
           const syncNavigationMode = () => {
             if (!mobileNavigation.matches) {
               menuOpen = false;
+              wrapper.classList.remove("mobile-menu-open");
               sectionPanel.classList.remove("is-mobile-open");
               sectionPanel.inert = false;
               sectionPanel.setAttribute("aria-hidden", "false");
@@ -1907,6 +1908,7 @@
           const closeNavigation = (returnFocus = false) => {
             menuOpen = false;
             syncNavigationMode();
+            wrapper.classList.remove("mobile-menu-open");
             if (returnFocus && mobileNavigation.matches) {
               menuButton.focus({ preventScroll: true });
             }
@@ -1916,6 +1918,7 @@
             if (!mobileNavigation.matches) return;
             menuOpen = !menuOpen;
             syncNavigationMode();
+            wrapper.classList.toggle("mobile-menu-open", menuOpen);
             if (menuOpen) {
               const firstLink = sectionPanel.querySelector(".steps-nav a");
               firstLink?.focus({ preventScroll: true });
