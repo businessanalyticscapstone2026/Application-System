@@ -1409,7 +1409,8 @@
           }, window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 250);
           if (restoreFocus) mobileStepbar?.focus();
         }
-        mobileStepbar?.addEventListener("click", openSectionsSheet);
+        // The hamburger is handled by the accessible application-steps drawer below.
+        // Do not also open the legacy mobile sheet from the same button.
         sheetBackdrop?.addEventListener("click", () => closeSectionsSheet());
         sheetHandle?.addEventListener("click", () => closeSectionsSheet());
         sheetStepButtons.forEach((row, index) => row.addEventListener("click", () => {
