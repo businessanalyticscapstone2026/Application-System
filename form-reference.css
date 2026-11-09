@@ -2324,3 +2324,33 @@ body.application-form-page .application-form-card {
     transition: none !important;
   }
 }
+
+
+/* Keep the mobile section drawer and its backdrop in the same stacking
+   context. The previous sibling backdrop was painted above the drawer. */
+@media (max-width: 900px) {
+  body.application-form-page .form-wrapper.mobile-menu-open {
+    z-index: 70 !important;
+    overflow: visible !important;
+  }
+
+  body.application-form-page .form-wrapper > .steps-backdrop:not([hidden]) {
+    position: fixed !important;
+    z-index: 79 !important;
+    inset: 0 !important;
+    display: block !important;
+    width: 100vw !important;
+    height: 100dvh !important;
+    border: 0 !important;
+    background: rgba(7, 20, 45, .48) !important;
+    cursor: pointer !important;
+  }
+
+  body.application-form-page .form-wrapper > .application-steps.is-mobile-open {
+    z-index: 80 !important;
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    transform: translateX(0) !important;
+  }
+}

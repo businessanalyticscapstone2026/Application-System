@@ -248,7 +248,7 @@
     // Place the switcher in the page's existing header instead of floating
     // over the content/chatbot. Standalone verification pages use a top edge.
     const homeNav = document.querySelector("#mainHeader nav");
-    const formHeader = document.querySelector(".form-header .header-bottom");
+    const formHeader = document.querySelector(".form-header");
     const disclaimerHeader = document.querySelector(".disclaimer-hero");
     const verifyHeader = document.querySelector(".verify-flow");
 

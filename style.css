@@ -8505,3 +8505,115 @@ body.application-form-page .application-form-card {
   .form-header .header-bottom { padding-right: 104px; }
   .form-header .osca-language-toggle { right: 8px; min-width: 82px; padding: 8px 9px; }
 }
+
+
+/* Consistent compact language switcher across every public page.
+   Use an ID selector so page-specific button rules cannot stretch it. */
+#oscaLanguageToggle {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+  width: auto !important;
+  min-width: 92px !important;
+  max-width: 112px !important;
+  height: 40px !important;
+  min-height: 40px !important;
+  max-height: 40px !important;
+  padding: 0 14px !important;
+  margin: 0 !important;
+  border: 1px solid rgba(255,255,255,.85) !important;
+  border-radius: 999px !important;
+  background: #001f78 !important;
+  color: #fff !important;
+  font-family: inherit !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  line-height: 1.1 !important;
+  letter-spacing: normal !important;
+  text-align: center !important;
+  text-transform: none !important;
+  white-space: nowrap !important;
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
+  transform: none !important;
+  cursor: pointer !important;
+  box-shadow: 0 3px 10px rgba(0,0,0,.16) !important;
+  z-index: 35 !important;
+}
+
+#oscaLanguageToggle:hover {
+  background: #0033a0 !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Main site: stay in the navigation row beside the hamburger control. */
+#mainHeader nav #oscaLanguageToggle {
+  position: static !important;
+  flex: 0 0 auto !important;
+  margin-left: 10px !important;
+}
+
+/* Application form: give the switcher its own row below the title bar. */
+body.application-form-page .form-header {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+}
+body.application-form-page .form-header #oscaLanguageToggle {
+  position: static !important;
+  align-self: flex-end !important;
+  margin: 8px 0 0 auto !important;
+}
+
+/* Disclaimer: place it alongside the close control, without covering text. */
+body.registration-page .disclaimer-hero {
+  position: relative !important;
+  padding-right: 180px !important;
+}
+body.registration-page .disclaimer-hero #oscaLanguageToggle {
+  position: absolute !important;
+  top: 14px !important;
+  right: 66px !important;
+}
+
+/* Tracking page: a small horizontal control in the top-right corner. */
+body.verify-page #oscaLanguageToggle {
+  position: fixed !important;
+  top: 14px !important;
+  right: 16px !important;
+}
+
+@media (max-width: 600px) {
+  #oscaLanguageToggle {
+    min-width: 88px !important;
+    max-width: 104px !important;
+    height: 38px !important;
+    min-height: 38px !important;
+    max-height: 38px !important;
+    padding: 0 11px !important;
+    font-size: 12px !important;
+  }
+
+  #mainHeader nav #oscaLanguageToggle {
+    margin-left: 7px !important;
+  }
+
+  body.application-form-page .form-header #oscaLanguageToggle {
+    margin-top: 7px !important;
+  }
+
+  body.registration-page .disclaimer-hero {
+    padding: 66px 17px 18px !important;
+    align-items: flex-start !important;
+  }
+  body.registration-page .disclaimer-hero #oscaLanguageToggle {
+    top: 13px !important;
+    right: 62px !important;
+  }
+
+  body.verify-page #oscaLanguageToggle {
+    top: 10px !important;
+    right: 10px !important;
+  }
+}
