@@ -1,6 +1,7 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
   <head>
+  <script src="language.js" defer></script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Senior Citizen ID Application Form</title>
@@ -25,11 +26,11 @@
         </div>
       </header>
       <div class="mobile-sticky-area">
-        <button class="mobile-stepbar" type="button" aria-haspopup="dialog" aria-expanded="false" aria-label="Open application sections" aria-controls="mobile-sections-sheet">
+        <button class="mobile-stepbar" type="button" aria-haspopup="dialog" aria-expanded="false" aria-label="Open application sections menu" aria-controls="application-steps">
           <span class="mobile-stepbar-copy" aria-live="polite" aria-atomic="true">
             <strong class="mobile-step-summary">Personal details</strong>
           </span>
-          <span class="mobile-stepbar-chevron material-symbols-outlined" aria-hidden="true">keyboard_arrow_up</span>
+          <span class="mobile-stepbar-chevron material-symbols-outlined" aria-hidden="true">menu</span>
         </button>
         <div class="mobile-progress-row">
           <nav class="mobile-progress" aria-label="Application step progress"></nav>
@@ -37,7 +38,8 @@
       </div>
       <p class="mobile-draft-status" aria-live="polite"><span class="material-symbols-outlined" aria-hidden="true">cloud_done</span><span>Draft saved</span></p>
       <main class="form-wrapper">
-      <aside class="application-steps" id="application-steps" aria-label="Application sections" tabindex="-1">
+      <button class="steps-backdrop" id="steps-backdrop" type="button" aria-label="Close application sections" hidden></button>
+      <aside class="application-steps" id="application-steps" aria-label="Application sections" aria-hidden="true" tabindex="-1" inert>
         <div class="mobile-drawer-heading"><strong>Application sections</strong><button class="mobile-steps-close" type="button" aria-label="Close application sections"><span class="material-symbols-outlined" aria-hidden="true">close</span></button></div>
         <div class="steps-mark"><img src="OSCA Bauan Logo.jpg" alt="OSCA logo" /></div>
         <nav class="steps-nav" aria-label="Form sections">
@@ -1870,6 +1872,74 @@
         }
         if (document.fonts && document.fonts.ready) {
           document.fonts.ready.then(updateFormViewport).catch(() => {});
+        }
+
+        // Accessible hamburger navigation for tablets and phones.
+        const menuButton = frame.querySelector(".mobile-stepbar");
+        const sectionPanel = frame.querySelector("#application-steps");
+        const backdrop = frame.querySelector("#steps-backdrop");
+        const closeButton = frame.querySelector(".mobile-steps-close");
+        const menuIcon = menuButton?.querySelector(".mobile-stepbar-chevron");
+        const mobileNavigation = window.matchMedia("(max-width: 900px)");
+
+        if (menuButton && sectionPanel && backdrop) {
+          let menuOpen = false;
+
+          const syncNavigationMode = () => {
+            if (!mobileNavigation.matches) {
+              menuOpen = false;
+              wrapper.classList.remove("mobile-menu-open");
+              sectionPanel.classList.remove("is-mobile-open");
+              sectionPanel.inert = false;
+              sectionPanel.setAttribute("aria-hidden", "false");
+              backdrop.hidden = true;
+              menuButton.setAttribute("aria-expanded", "false");
+              if (menuIcon) menuIcon.textContent = "menu";
+              return;
+            }
+            sectionPanel.inert = !menuOpen;
+            sectionPanel.setAttribute("aria-hidden", String(!menuOpen));
+            sectionPanel.classList.toggle("is-mobile-open", menuOpen);
+            backdrop.hidden = !menuOpen;
+            menuButton.setAttribute("aria-expanded", String(menuOpen));
+            if (menuIcon) menuIcon.textContent = menuOpen ? "close" : "menu";
+          };
+
+          const closeNavigation = (returnFocus = false) => {
+            menuOpen = false;
+            syncNavigationMode();
+            wrapper.classList.remove("mobile-menu-open");
+            if (returnFocus && mobileNavigation.matches) {
+              menuButton.focus({ preventScroll: true });
+            }
+          };
+
+          menuButton.addEventListener("click", () => {
+            if (!mobileNavigation.matches) return;
+            menuOpen = !menuOpen;
+            syncNavigationMode();
+            wrapper.classList.toggle("mobile-menu-open", menuOpen);
+            if (menuOpen) {
+              const firstLink = sectionPanel.querySelector(".steps-nav a");
+              firstLink?.focus({ preventScroll: true });
+            }
+          });
+
+          closeButton?.addEventListener("click", () => closeNavigation(true));
+          backdrop.addEventListener("click", () => closeNavigation(true));
+          sectionPanel.querySelectorAll(".steps-nav a").forEach((link) => {
+            link.addEventListener("click", () => closeNavigation(false));
+          });
+          document.addEventListener("keydown", (event) => {
+            if (event.key === "Escape" && menuOpen) closeNavigation(true);
+          });
+
+          if (mobileNavigation.addEventListener) {
+            mobileNavigation.addEventListener("change", () => closeNavigation(false));
+          } else {
+            window.addEventListener("resize", () => closeNavigation(false), { passive: true });
+          }
+          syncNavigationMode();
         }
       })();
     </script>
