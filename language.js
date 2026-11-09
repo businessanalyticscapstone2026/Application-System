@@ -82,7 +82,7 @@
     "Dependent Of Children/Relatives":"Umaasa sa mga anak / kamag-anak","Spouse's Salary":"Suweldo ng asawa","Insurance":"Seguro",
     "Rentals/Sharecrops":"Paupahan / bahagi sa ani","Savings":"Impok","Livestock/Crop":"Alagang hayop / pananim","Others Specify":"Iba pa, tukuyin",
     "Assets and Properties (Check all applicable)":"Mga Ari-arian at Pag-aari (Piliin ang lahat ng naaangkop)",
-    "House":"Bahay","Lot":"Lote","Farmland":"Sakahan","Fishponds/Resorts":" palaisdaan / resort","Commercial Building":"Gusaling pangnegosyo",
+    "House":"Bahay","Lot":"Lote","Farmland":"Sakahan","Fishponds/Resorts":"Palaisdaan / resort","Commercial Building":"Gusaling pangnegosyo",
     "Monthly Income (in the Philippine Peso)":"Buwanang Kita (sa piso ng Pilipinas)","Select monthly income":"Pumili ng buwanang kita",
     "10,000 & ABOVE":"₱10,000 pataas","999 AND BELOW":"₱999 pababa",
     "Living / Residing With (Check all applicable)":"Kasama sa Paninirahan (Piliin ang lahat ng naaangkop)",
@@ -151,7 +151,7 @@
     "Edit Application":"I-edit ang Aplikasyon","Request for ID":"Kahilingan para sa ID","Close Tracking Page":"Isara ang Pahina ng Pagsubaybay",
     "Please select the reason for your ID request.":"Piliin ang dahilan ng iyong kahilingan para sa ID.","Reason for Request":"Dahilan ng Kahilingan",
     "Select a reason":"Pumili ng dahilan","Lost":"Nawala","Damage":"Nasira","Change Address":"Pagbabago ng Tirahan",
-    "Other":"Iba pa","Please specify":"Pak itukoy","Submit Request":"Isumite ang Kahilingan","Request Submitted Successfully":"Matagumpay na Naipasa ang Kahilingan",
+    "Other":"Iba pa","Please specify":"Pak tukuyin","Submit Request":"Isumite ang Kahilingan","Request Submitted Successfully":"Matagumpay na Naipasa ang Kahilingan",
     "Online":"Naka-online","Hello! I'm the OSCA Virtual Assistant.":"Kumusta! Ako ang OSCA Virtual Assistant.",
     "Hello! I'm the OSCA Virtual Assistant. How can I help you today?":"Kumusta! Ako ang OSCA Virtual Assistant. Paano kita matutulungan ngayon?",
     "Mga maaari mong itanong / You may ask:":"Mga maaari mong itanong:","Walang Birth Certificate":"Walang Birth Certificate",
@@ -159,7 +159,7 @@
     "Assistant is typing...":"Nagta-type ang assistant...","AI-generated responses may contain errors.":"Maaaring may pagkakamali ang mga sagot na binuo ng AI.",
     "Close":"Isara","Select":"Pumili","Select sex":"Pumili ng kasarian","Select civil status":"Pumili ng katayuang sibil",
     "Select educational attainment":"Pumili ng natapos na pag-aaral","Select religion":"Pumili ng relihiyon","Select monthly income":"Pumili ng buwanang kita",
-    "No file selected":"Walang napiling file","Please specify":"Pak itukoy"
+    "No file selected":"Walang napiling file","Please specify":"Pak tukuyin"
   };
 
   const ATTRIBUTE_TRANSLATIONS = {
@@ -178,7 +178,7 @@
 
   function translateTextNode(node, lang) {
     if (!node || !node.nodeValue || !node.nodeValue.trim()) return;
-    if (node.parentElement?.closest("script,style,noscript,textarea, input, select, option[data-user-value], [contenteditable='true'], #languageToggle")) return;
+    if (node.parentElement?.closest("script,style,noscript,textarea,input,[contenteditable='true'],#oscaLanguageToggle")) return;
 
     if (!node.__oscaOriginal) {
       Object.defineProperty(node, "__oscaOriginal", { value: node.nodeValue, writable: true });
@@ -189,9 +189,10 @@
     if (translated) {
       const start = original.match(/^\s*/)?.[0] || "";
       const end = original.match(/\s*$/)?.[0] || "";
-      node.nodeValue = start + translated + end;
+      const nextValue = start + translated + end;
+      if (node.nodeValue !== nextValue) node.nodeValue = nextValue;
     } else {
-      node.nodeValue = original;
+      if (node.nodeValue !== original) node.nodeValue = original;
     }
   }
 
@@ -200,7 +201,7 @@
     for (const el of elements) {
       for (const attr of ["placeholder", "aria-label", "title", "alt", "value"]) {
         if (!el.hasAttribute?.(attr)) continue;
-        if (attr === "value" && !["BUTTON", "INPUT"].includes(el.tagName)) continue;
+        if (attr === "value" && !(el.tagName === "BUTTON" || (el.tagName === "INPUT" && ["button", "submit", "reset"].includes((el.type || "").toLowerCase())))) continue;
         const key = "__oscaOriginal_" + attr;
         if (!(key in el.dataset)) el.dataset[key] = el.getAttribute(attr) || "";
         const original = el.dataset[key];
