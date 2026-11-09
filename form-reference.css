@@ -2208,3 +2208,119 @@ body.application-form-page .application-form-card {
     padding: 12px 12px max(24px, env(safe-area-inset-bottom)) !important;
   }
 }
+
+
+/* Mobile/tablet hamburger section menu. The desktop layout keeps all six
+   sections in the horizontal navigation bar above the form. */
+@media (max-width: 900px) {
+  body.application-form-page .steps-backdrop:not([hidden]) {
+    position: fixed !important;
+    z-index: 79 !important;
+    inset: 0 !important;
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    border: 0 !important;
+    background: rgba(7, 20, 45, .48) !important;
+    cursor: pointer !important;
+  }
+
+  body.application-form-page .application-steps {
+    position: fixed !important;
+    z-index: 80 !important;
+    top: 12px !important;
+    right: auto !important;
+    bottom: 12px !important;
+    left: 12px !important;
+    display: none !important;
+    width: min(88vw, 360px) !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    padding: 20px 16px !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    border: 0 !important;
+    border-radius: 18px !important;
+    background: var(--blue-dark, #102b5c) !important;
+    box-shadow: 0 18px 50px rgba(0, 0, 0, .28) !important;
+    visibility: visible !important;
+    transform: translateX(-110%) !important;
+    transition: transform .22s ease !important;
+  }
+
+  body.application-form-page .application-steps.is-mobile-open {
+    display: flex !important;
+    transform: translateX(0) !important;
+  }
+
+  body.application-form-page .application-steps .mobile-drawer-heading {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 12px !important;
+    margin-bottom: 18px !important;
+    color: #fff !important;
+  }
+
+  body.application-form-page .application-steps .mobile-steps-close {
+    display: grid !important;
+    width: 42px !important;
+    height: 42px !important;
+    flex: 0 0 42px !important;
+    place-items: center !important;
+    border: 1px solid rgba(255,255,255,.25) !important;
+    border-radius: 11px !important;
+    background: rgba(255,255,255,.12) !important;
+    color: #fff !important;
+    cursor: pointer !important;
+  }
+
+  body.application-form-page .application-steps .steps-mark,
+  body.application-form-page .application-steps .form-side-progress,
+  body.application-form-page .application-steps .form-privacy-note {
+    display: none !important;
+  }
+
+  body.application-form-page .application-steps .steps-nav {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    margin: 0 !important;
+  }
+
+  body.application-form-page .application-steps .steps-nav a {
+    display: flex !important;
+    min-height: 54px !important;
+    grid-template-columns: none !important;
+    align-items: center !important;
+    gap: 10px !important;
+    padding: 10px 12px !important;
+    border: 1px solid rgba(255,255,255,.14) !important;
+    border-radius: 11px !important;
+    background: rgba(255,255,255,.07) !important;
+    color: rgba(255,255,255,.9) !important;
+    font-size: .88rem !important;
+  }
+
+  body.application-form-page .application-steps .steps-nav a.is-current {
+    border-color: rgba(255,255,255,.45) !important;
+    background: #fff !important;
+    color: var(--blue-dark, #102b5c) !important;
+  }
+
+  body.application-form-page .application-steps .steps-nav .step-label strong {
+    color: inherit !important;
+    font-size: .88rem !important;
+  }
+
+  body.application-form-page .mobile-stepbar-chevron {
+    font-size: 25px !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.application-form-page .application-steps {
+    transition: none !important;
+  }
+}
