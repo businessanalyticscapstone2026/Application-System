@@ -2033,3 +2033,294 @@ body.application-form-page .application-form-card {
     outline-offset: 3px !important;
   }
 }
+
+
+ 
+/* Desktop application navigation: replace the left rail with a full-width
+   horizontal section bar. The existing mobile step sheet remains in use. */
+@media (min-width: 901px) {
+  body.application-form-page .page-frame > .form-wrapper {
+    position: fixed !important;
+    top: var(--application-form-top, 132px) !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    display: block !important;
+    overflow: hidden !important;
+  }
+
+  body.application-form-page .application-steps {
+    position: absolute !important;
+    top: 0 !important;
+    right: 0 !important;
+    bottom: auto !important;
+    left: 0 !important;
+    display: block !important;
+    width: 100% !important;
+    height: 82px !important;
+    min-height: 82px !important;
+    max-height: 82px !important;
+    padding: 10px 22px !important;
+    overflow: visible !important;
+    background: #fff !important;
+    color: var(--blue-dark) !important;
+    border-bottom: 1px solid #dbe3ed !important;
+    box-shadow: 0 5px 16px rgba(13,34,77,.06) !important;
+    z-index: 20 !important;
+  }
+
+  body.application-form-page .application-steps::after,
+  body.application-form-page .application-steps .mobile-drawer-heading,
+  body.application-form-page .application-steps .steps-mark,
+  body.application-form-page .application-steps .form-side-progress,
+  body.application-form-page .application-steps .form-privacy-note {
+    display: none !important;
+  }
+
+  body.application-form-page .application-steps .steps-nav {
+    display: grid !important;
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+  }
+
+  body.application-form-page .application-steps .steps-nav a {
+    display: flex !important;
+    min-width: 0 !important;
+    min-height: 58px !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 7px 9px !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 11px !important;
+    background: #f8fafc !important;
+    color: #52627a !important;
+    font-size: .78rem !important;
+    line-height: 1.15 !important;
+    text-align: left !important;
+  }
+
+  body.application-form-page .application-steps .steps-nav a.is-current {
+    background: #eef3ff !important;
+    border-color: var(--blue) !important;
+    color: var(--blue-dark) !important;
+    box-shadow: 0 4px 12px rgba(23,58,124,.10) !important;
+  }
+
+  body.application-form-page .application-steps .steps-nav a > .step-number {
+    width: 32px !important;
+    height: 32px !important;
+    flex: 0 0 32px !important;
+    background: #e8edf5 !important;
+    border: 1px solid #d4dce7 !important;
+    color: var(--blue-dark) !important;
+  }
+
+  body.application-form-page .application-steps .steps-nav a.is-current > .step-number {
+    background: var(--red) !important;
+    border-color: var(--red) !important;
+    color: #fff !important;
+  }
+
+  body.application-form-page .application-steps .steps-nav .step-label {
+    display: flex !important;
+    min-width: 0 !important;
+    flex: 1 1 auto !important;
+    flex-direction: column !important;
+    gap: 1px !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  body.application-form-page .application-steps .steps-nav .step-label strong {
+    font-size: .76rem !important;
+    line-height: 1.15 !important;
+    font-weight: 800 !important;
+  }
+
+  body.application-form-page .application-steps .steps-nav .step-state {
+    width: auto !important;
+    flex: 0 0 auto !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 2px !important;
+    background: transparent !important;
+    border: 0 !important;
+  }
+
+  body.application-form-page .application-steps .steps-nav .step-state .step-status {
+    width: 17px !important;
+    height: 17px !important;
+    flex: 0 0 17px !important;
+    background: transparent !important;
+    border: 0 !important;
+    font-size: 15px !important;
+  }
+
+  body.application-form-page .application-form-card {
+    position: absolute !important;
+    top: 82px !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    width: auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    padding: 22px clamp(18px, 3vw, 42px) 32px !important;
+  }
+}
+
+@media (max-width: 900px) {
+  /* Use the existing compact stepbar + slide-up section sheet as the burger
+     navigation on tablets and phones; do not show the desktop navigation rail. */
+  body.application-form-page .application-steps {
+    display: none !important;
+  }
+
+  body.application-form-page .page-frame > .form-wrapper {
+    display: block !important;
+    top: var(--application-form-top, 132px) !important;
+  }
+
+  body.application-form-page .application-form-card {
+    position: absolute !important;
+    top: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    width: auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+  }
+}
+
+@media (max-width: 480px) {
+  body.application-form-page .application-form-card {
+    padding: 12px 12px max(24px, env(safe-area-inset-bottom)) !important;
+  }
+}
+
+
+/* Mobile/tablet hamburger section menu. The desktop layout keeps all six
+   sections in the horizontal navigation bar above the form. */
+@media (max-width: 900px) {
+  body.application-form-page .steps-backdrop:not([hidden]) {
+    position: fixed !important;
+    z-index: 79 !important;
+    inset: 0 !important;
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    border: 0 !important;
+    background: rgba(7, 20, 45, .48) !important;
+    cursor: pointer !important;
+  }
+
+  body.application-form-page .application-steps {
+    position: fixed !important;
+    z-index: 80 !important;
+    top: 12px !important;
+    right: auto !important;
+    bottom: 12px !important;
+    left: 12px !important;
+    display: none !important;
+    width: min(88vw, 360px) !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    padding: 20px 16px !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    border: 0 !important;
+    border-radius: 18px !important;
+    background: var(--blue-dark, #102b5c) !important;
+    box-shadow: 0 18px 50px rgba(0, 0, 0, .28) !important;
+    visibility: visible !important;
+    transform: translateX(-110%) !important;
+    transition: transform .22s ease !important;
+  }
+
+  body.application-form-page .application-steps.is-mobile-open {
+    display: flex !important;
+    transform: translateX(0) !important;
+  }
+
+  body.application-form-page .application-steps .mobile-drawer-heading {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 12px !important;
+    margin-bottom: 18px !important;
+    color: #fff !important;
+  }
+
+  body.application-form-page .application-steps .mobile-steps-close {
+    display: grid !important;
+    width: 42px !important;
+    height: 42px !important;
+    flex: 0 0 42px !important;
+    place-items: center !important;
+    border: 1px solid rgba(255,255,255,.25) !important;
+    border-radius: 11px !important;
+    background: rgba(255,255,255,.12) !important;
+    color: #fff !important;
+    cursor: pointer !important;
+  }
+
+  body.application-form-page .application-steps .steps-mark,
+  body.application-form-page .application-steps .form-side-progress,
+  body.application-form-page .application-steps .form-privacy-note {
+    display: none !important;
+  }
+
+  body.application-form-page .application-steps .steps-nav {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    margin: 0 !important;
+  }
+
+  body.application-form-page .application-steps .steps-nav a {
+    display: flex !important;
+    min-height: 54px !important;
+    grid-template-columns: none !important;
+    align-items: center !important;
+    gap: 10px !important;
+    padding: 10px 12px !important;
+    border: 1px solid rgba(255,255,255,.14) !important;
+    border-radius: 11px !important;
+    background: rgba(255,255,255,.07) !important;
+    color: rgba(255,255,255,.9) !important;
+    font-size: .88rem !important;
+  }
+
+  body.application-form-page .application-steps .steps-nav a.is-current {
+    border-color: rgba(255,255,255,.45) !important;
+    background: #fff !important;
+    color: var(--blue-dark, #102b5c) !important;
+  }
+
+  body.application-form-page .application-steps .steps-nav .step-label strong {
+    color: inherit !important;
+    font-size: .88rem !important;
+  }
+
+  body.application-form-page .mobile-stepbar-chevron {
+    font-size: 25px !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.application-form-page .application-steps {
+    transition: none !important;
+  }
+}
