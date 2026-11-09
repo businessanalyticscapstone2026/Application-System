@@ -238,13 +238,32 @@
     button.type = "button";
     button.className = "osca-language-toggle";
     button.textContent = language() === "tl" ? "English" : "Tagalog";
-    button.setAttribute("aria-label", "Lumipat sa Tagalog");
+    button.setAttribute("aria-label", language() === "tl" ? "Switch to English" : "Lumipat sa Tagalog");
     button.addEventListener("click", () => {
       const next = language() === "en" ? "tl" : "en";
       try { localStorage.setItem(STORAGE_KEY, next); } catch (_) {}
       translate(document);
     });
-    document.body.appendChild(button);
+
+    // Place the switcher in the page's existing header instead of floating
+    // over the content/chatbot. Standalone verification pages use a top edge.
+    const homeNav = document.querySelector("#mainHeader nav");
+    const formHeader = document.querySelector(".form-header .header-bottom");
+    const disclaimerHeader = document.querySelector(".disclaimer-hero");
+    const verifyHeader = document.querySelector(".verify-flow");
+
+    if (homeNav) {
+      const mobileMenuButton = homeNav.querySelector("#hamburgerBtn");
+      homeNav.insertBefore(button, mobileMenuButton || null);
+    } else if (formHeader) {
+      formHeader.appendChild(button);
+    } else if (disclaimerHeader) {
+      disclaimerHeader.appendChild(button);
+    } else if (verifyHeader) {
+      verifyHeader.appendChild(button);
+    } else {
+      document.body.prepend(button);
+    }
   }
 
   function start() {

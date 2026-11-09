@@ -8448,3 +8448,60 @@ body.application-form-page .application-form-card {
     font-size: 13px;
   }
 }
+
+
+/* Header-mounted language switcher: never cover the chatbot or page content. */
+.osca-language-toggle {
+  position: static;
+  z-index: 30;
+  flex: 0 0 auto;
+  min-width: 92px;
+  margin: 0 0 0 14px;
+  padding: 9px 14px;
+  border: 1px solid rgba(255,255,255,.8);
+  border-radius: 999px;
+  background: #001f78;
+  color: #fff;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.2;
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(0,0,0,.14);
+  transition: background-color .2s ease, transform .2s ease;
+}
+.osca-language-toggle:hover { background: #0033a0; transform: translateY(-1px); }
+.osca-language-toggle:focus-visible { outline: 3px solid #f5c542; outline-offset: 3px; }
+#mainHeader nav .osca-language-toggle { margin-left: 14px; }
+.form-header .header-bottom { padding-right: 122px; }
+.form-header .osca-language-toggle {
+  position: absolute;
+  top: 50%;
+  right: 14px;
+  margin: 0;
+  transform: translateY(-50%);
+}
+.disclaimer-hero { position: relative; }
+.disclaimer-hero .osca-language-toggle {
+  position: absolute;
+  top: 12px;
+  right: 58px;
+  margin: 0;
+}
+.verify-flow { position: relative; }
+.verify-flow > .osca-language-toggle {
+  position: fixed;
+  top: 14px;
+  right: 16px;
+  margin: 0;
+}
+@media (max-width: 900px) {
+  #mainHeader nav .osca-language-toggle { margin-left: 8px; min-width: 82px; padding: 8px 11px; }
+  .form-header .header-bottom { padding-right: 112px; }
+}
+@media (max-width: 480px) {
+  #mainHeader nav .osca-language-toggle { min-width: 76px; padding: 8px 9px; font-size: 12px; }
+  .form-header .header-bottom { padding-right: 104px; }
+  .form-header .osca-language-toggle { right: 8px; min-width: 82px; padding: 8px 9px; }
+}
