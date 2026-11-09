@@ -42,16 +42,26 @@ export async function createApplicationUploadTicket(req, res) {
 }
 
 export async function testDatabase(req, res) {
-    const { data, error } = await supabase
+    // Probe database connectivity without returning applicant records or PII.
+    const { error } = await supabase
         .from("applications")
-        .select("*")
-        .limit(5);
+        .select("application_id")
+        .limit(1);
 
     if (error) {
-        return res.status(500).json(error);
+        console.error("[database-health] Supabase query failed:", error.message);
+        return res.status(503).json({
+            success: false,
+            service: "database",
+            message: "Database connection is unavailable."
+        });
     }
 
-    res.json(data);
+    return res.status(200).json({
+        success: true,
+        service: "database",
+        message: "Database connection is healthy."
+    });
 }
 
 export async function registerApplication(req, res) {
