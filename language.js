@@ -7,6 +7,10 @@
   // English text -> Filipino (Tagalog) text.
   // This dictionary intentionally translates interface wording only.
   const TL = {
+    "OSCA Bauan - Office of Senior Citizens Affairs | Fully Fixed Header & Responsive Hero":"OSCA Bauan - Tanggapan para Senior Citizen",
+    "Registration Disclaimer | OSCA Bauan":"Paalala sa Pagpaparehistro | OSCA Bauan",
+    "Senior Citizen ID Application Form":"Form ng Aplikasyon para sa Senior Citizen ID",
+    "OSCA Bauan | Verify Application Status":"OSCA Bauan | Suriin ang Status ng Aplikasyon",
     "Home":"Home","About":"Tungkol sa OSCA","Stories":"Mga Kuwento","Contact":"Makipag-ugnayan",
     "Track Status":"Subaybayan ang Aplikasyon","Apply Now":"Mag-apply Ngayon",
     "Mabuhay!":"Mabuhay!","How can we help you today?":"Paano ka namin matutulungan ngayon?",
