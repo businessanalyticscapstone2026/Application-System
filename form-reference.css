@@ -2395,3 +2395,143 @@ body.application-form-page .application-form-card {
 @media (prefers-reduced-motion: reduce) {
   body.application-form-page .mobile-sections-sheet { transition: none !important; }
 }
+
+
+/* Restore the original WHITE mobile burger drawer.
+   The hamburger opens .application-steps (not .mobile-sections-sheet),
+   so these overrides target the actual drawer used by the page. */
+@media (max-width: 900px) {
+  body.application-form-page .application-steps.is-mobile-open {
+    background: #fff !important;
+    color: #263750 !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 18px 50px rgba(15,37,71,.20) !important;
+  }
+
+  body.application-form-page .application-steps .mobile-drawer-heading {
+    color: #102b5c !important;
+  }
+
+  body.application-form-page .application-steps .mobile-steps-close {
+    border: 1px solid #d5dce6 !important;
+    background: #f8fafc !important;
+    color: #263750 !important;
+  }
+
+  body.application-form-page .application-steps .steps-nav a {
+    display: grid !important;
+    grid-template-columns: 40px minmax(0,1fr) 26px !important;
+    min-height: 62px !important;
+    gap: 10px !important;
+    padding: 8px 10px !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 12px !important;
+    background: #fff !important;
+    color: #263750 !important;
+  }
+
+  body.application-form-page .application-steps .steps-nav a.is-current {
+    border-color: #f1c6c9 !important;
+    background: #fff1f1 !important;
+    color: #c83c3b !important;
+  }
+
+  body.application-form-page .application-steps .steps-nav a > .step-number {
+    display: grid !important;
+    position: relative !important;
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+    place-items: center !important;
+    border: 1px solid #cbd2dc !important;
+    border-radius: 50% !important;
+    background: #f5f6f8 !important;
+    color: #718096 !important;
+    overflow: hidden !important;
+  }
+
+  body.application-form-page .application-steps .steps-nav a > .step-number > .step-number-text {
+    display: grid !important;
+    position: static !important;
+    width: 100% !important;
+    height: 100% !important;
+    place-items: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    color: inherit !important;
+    font-size: .78rem !important;
+    line-height: 1 !important;
+  }
+
+  body.application-form-page .application-steps .steps-nav a > .step-number > .step-number-check,
+  body.application-form-page .application-steps .steps-nav a > .step-number > .step-number-lock {
+    display: none !important;
+  }
+
+  body.application-form-page .application-steps .steps-nav a.is-current > .step-number {
+    border-color: #e24b4a !important;
+    background: #e24b4a !important;
+    color: #fff !important;
+  }
+
+  body.application-form-page .application-steps .steps-nav .step-label strong {
+    color: inherit !important;
+    font-size: .88rem !important;
+    line-height: 1.2 !important;
+  }
+
+  body.application-form-page .application-steps .steps-nav .step-label strong:nth-child(2) {
+    color: #64748b !important;
+  }
+
+  body.application-form-page .application-steps .steps-nav a.is-current .step-label strong:nth-child(2) {
+    color: #c83c3b !important;
+  }
+
+  body.application-form-page .application-steps .steps-nav .step-state {
+    display: flex !important;
+    width: 24px !important;
+    height: auto !important;
+    min-width: 0 !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+    color: #8792a1 !important;
+  }
+
+  body.application-form-page .application-steps .steps-nav .step-state .step-status {
+    display: none !important;
+    width: auto !important;
+    height: auto !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+    color: inherit !important;
+    font-size: 19px !important;
+  }
+
+  body.application-form-page .application-steps .steps-nav a.is-current .step-status-current,
+  body.application-form-page .application-steps .steps-nav a.is-complete:not(.is-current) .step-status-done,
+  body.application-form-page .application-steps .steps-nav a.is-locked:not(.is-current) .step-status-locked {
+    display: inline-flex !important;
+  }
+
+  body.application-form-page .application-steps .steps-nav a.is-current .step-status-current {
+    color: #c83c3b !important;
+  }
+
+  body.application-form-page .application-steps .steps-nav a.is-complete:not(.is-current) .step-status-done {
+    color: #0f2557 !important;
+  }
+
+  body.application-form-page .application-steps .steps-nav a.is-locked:not(.is-current) .step-status-locked {
+    color: #8792a1 !important;
+  }
+}
