@@ -13,13 +13,20 @@ import {
     updateDocumentAuthentication,
     listStaffApplications,
     getStaffApplicationDetail,
-    updateStaffApplicationStatus
+    updateStaffApplicationStatus,
+    createApplicationUploadTicket
 } from "../controllers/applicationController.js";
 
 import { getApplicationStatus } from "../controllers/statusController.js";
+import { verifyFace, verifyAge, screenDocument, verificationHealth } from "../controllers/verificationController.js";
 
 const router = express.Router();
 
+router.post("/upload-ticket", createApplicationUploadTicket);
+router.post("/verify-face", verifyFace);
+router.post("/verify-age", verifyAge);
+router.post("/screen-document", screenDocument);
+router.get("/verification-health", verificationHealth);
 router.get("/test", testDatabase);
 router.get("/staff", listStaffApplications);
 router.get("/staff/:applicationId", getStaffApplicationDetail);

@@ -100,8 +100,13 @@ async function verifyApplicantFace(files) {
 
     try {
 
+        const faceVerificationEndpoint = new URL(
+            "verify-face",
+            `${FACE_VERIFICATION_URL.replace(/\/+$/, "")}/`
+        );
+
         response = await fetch(
-            FACE_VERIFICATION_URL,
+            faceVerificationEndpoint,
             {
                 method: "POST",
                 body: formData

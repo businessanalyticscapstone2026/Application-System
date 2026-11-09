@@ -12,28 +12,65 @@ import {
     updateDocumentAuthentication as updateDocumentAuthenticationService
 } from "../services/applicationService.js";
 import { sendApplicationIdSms } from "../services/smsService.js";
+import { createUploadTicket, hydrateUploadedFiles } from "../services/storageService.js";
 
+function readRequestPayload(req) {
+    const raw = req.body?.payload;
+    return typeof raw === "string" ? JSON.parse(raw) : (raw || {});
+}
+
+async function readRequestFiles(req) {
+    if (req.files && Object.keys(req.files).length) return req.files;
+    return await hydrateUploadedFiles(req.body?.files || {});
+}
+
+
+export async function createApplicationUploadTicket(req, res) {
+    try {
+        const ticket = await createUploadTicket({
+            fileName: req.body?.fileName,
+            contentType: req.body?.contentType,
+            size: req.body?.size
+        });
+        return res.status(201).json({ success: true, ...ticket });
+    } catch (error) {
+        return res.status(error.status || 500).json({
+            success: false,
+            message: error.status ? error.message : "Unable to prepare secure file upload."
+        });
+    }
+}
 
 export async function testDatabase(req, res) {
-    const { data, error } = await supabase
+    // Probe database connectivity without returning applicant records or PII.
+    const { error } = await supabase
         .from("applications")
-        .select("*")
-        .limit(5);
+        .select("application_id")
+        .limit(1);
 
     if (error) {
-        return res.status(500).json(error);
+        console.error("[database-health] Supabase query failed:", error.message);
+        return res.status(503).json({
+            success: false,
+            service: "database",
+            message: "Database connection is unavailable."
+        });
     }
 
-    res.json(data);
+    return res.status(200).json({
+        success: true,
+        service: "database",
+        message: "Database connection is healthy."
+    });
 }
 
 export async function registerApplication(req, res) {
 
     try {
 
-        const payload = JSON.parse(req.body.payload);
+        const payload = readRequestPayload(req);
 
-        const result = await registerApplicationService(payload, req.files);
+        const result = await registerApplicationService(payload, await readRequestFiles(req));
         if (result.duplicate) {
             return res.status(409).json({
                 success: false,
@@ -142,12 +179,12 @@ export async function updateApplication(req, res) {
 
     try {
 
-        const payload = JSON.parse(req.body.payload);
+        const payload = readRequestPayload(req);
 
         const result = await updateApplicationService(
             applicationId,
             payload,
-            req.files
+            await readRequestFiles(req)
         );
 
         return res.status(200).json({
@@ -176,13 +213,13 @@ export async function submitIdRequest(req, res) {
 
     try {
         const payload =
-            JSON.parse(req.body.payload);
+            readRequestPayload(req);
 
         const result =
             await submitIdRequestService(
                 applicationId,
                 payload,
-                req.files
+                await readRequestFiles(req)
             );
 
         return res.status(201).json({
@@ -335,13 +372,13 @@ export async function updateVerifiedDuplicateRecord(
         }
 
         const payload =
-            JSON.parse(req.body.payload);
+            readRequestPayload(req);
 
         const result =
             await updateVerifiedDuplicateApplicationService(
                 sessionId,
                 payload,
-                req.files
+                await readRequestFiles(req)
             );
 
         return res.status(200).json({

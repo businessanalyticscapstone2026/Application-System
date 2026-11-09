@@ -3,7 +3,7 @@
 // rendering or form interaction, but can absorb a Render cold start while
 // applicants are reading and completing the form.
 if (document.body?.classList.contains("application-form-page")) {
-  fetch("https://osca-backend.onrender.com/health", {
+  fetch("/health", {
     method: "GET",
     mode: "cors",
     cache: "no-store",
@@ -14,7 +14,57 @@ if (document.body?.classList.contains("application-form-page")) {
 }
 
 const DOCUMENT_VERIFICATION_API =
-  "https://osca-document-verification.onrender.com/screen-document";
+  "/api/applications/screen-document";
+
+const privateUploadCache = new WeakMap();
+
+async function uploadFileToPrivateStorage(file) {
+  if (!file) throw new Error("A file is required for upload.");
+  if (privateUploadCache.has(file)) return privateUploadCache.get(file);
+  const uploadPromise = (async function () {
+  const ticketResponse = await fetch("/api/applications/upload-ticket", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      fileName: file.name,
+      contentType: file.type,
+      size: file.size
+    })
+  });
+  const ticket = await ticketResponse.json().catch(() => ({}));
+  if (!ticketResponse.ok || !ticket.success || !ticket.path || !ticket.uploadUrl) {
+    throw new Error(ticket.message || "Unable to prepare secure upload.");
+  }
+  // Supabase signed-upload URLs expect the file bytes as the request body,
+  // not multipart/form-data. Sending FormData here stores an invalid wrapper
+  // instead of the original document/image.
+  const uploadResponse = await fetch(ticket.uploadUrl, {
+    method: "PUT",
+    headers: {
+      "Content-Type": file.type || "application/octet-stream",
+      "x-upsert": "false"
+    },
+    body: file
+  });
+  if (!uploadResponse.ok) {
+    const failure = await uploadResponse.json().catch(() => ({}));
+    throw new Error(failure.message || "Unable to upload " + file.name + ".");
+  }
+  return {
+    path: ticket.path,
+    originalname: file.name,
+    mimetype: file.type,
+    size: file.size
+  };
+  })();
+  privateUploadCache.set(file, uploadPromise);
+  try {
+    return await uploadPromise;
+  } catch (error) {
+    privateUploadCache.delete(file);
+    throw error;
+  }
+}
 
 function blockNonNumericInput() {
   const ageField = document.getElementById("age");
@@ -988,13 +1038,13 @@ async function loadApplicationForEditing() {
     if (isDuplicateUpdate) {
 
       loadUrl =
-        "https://osca-backend.onrender.com/api/applications/duplicate/verified/" +
+        "/api/applications/duplicate/verified/" +
         encodeURIComponent(sessionId);
 
     } else {
 
       loadUrl =
-        "https://osca-backend.onrender.com/api/applications/" +
+        "/api/applications/" +
         encodeURIComponent(applicationId);
     }
 
@@ -2038,11 +2088,11 @@ function setupFaceCamera() {
 
 
   const FACE_VERIFICATION_API =
-    "https://application-system-vcv6.onrender.com/verify-face";
+    "/api/applications/verify-face";
   const AGE_VERIFICATION_API =
-    "https://osca-age-verification.onrender.com/verify-age";
+    "/api/applications/verify-age";
   const DOCUMENT_VERIFICATION_API =
-    "https://osca-document-verification.onrender.com/screen-document";
+    "/api/applications/screen-document";
 
   const dobInput =
     document.getElementById("dob");
@@ -2551,41 +2601,21 @@ function setupFaceCamera() {
         // Create request for FastAPI
         // ---------------------------------------------
 
-        const verificationData =
-          new FormData();
-
-
-        /*
-         * source_image = Valid ID
-         * target_image = Live camera capture
-         */
-        verificationData.append(
-          "source_image",
-          validIdFile
-        );
-
-
-        verificationData.append(
-          "target_image",
-          capturedFile
-        );
-
-
         try {
-
-          // -------------------------------------------
-          // Call Python facial-verification API
-          // -------------------------------------------
-
-          const response =
-            await fetch(
-              FACE_VERIFICATION_API,
-              {
-                method: "POST",
-                body: verificationData
+          const [storedId, storedFace] = await Promise.all([
+            uploadFileToPrivateStorage(validIdFile),
+            uploadFileToPrivateStorage(capturedFile)
+          ]);
+          const response = await fetch("/api/applications/verify-face", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              files: {
+                valid_id_front: [storedId],
+                verification_photo: [storedFace]
               }
-            );
-
+            })
+          });
 
           let result;
 
@@ -2889,28 +2919,15 @@ function setupFaceCamera() {
       }
 
 
-      const ageVerificationData =
-        new FormData();
-
-      ageVerificationData.append(
-        "document",
-        validIdFile
-      );
-
-      ageVerificationData.append(
-        "date_of_birth",
-        enteredBirthDate
-      );
-
-
-      const response =
-        await fetch(
-          AGE_VERIFICATION_API,
-          {
-            method: "POST",
-            body: ageVerificationData
-          }
-        );
+      const storedId = await uploadFileToPrivateStorage(validIdFile);
+      const response = await fetch(AGE_VERIFICATION_API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          files: { valid_id_front: [storedId] },
+          date_of_birth: enteredBirthDate
+        })
+      });
 
 
       let result;
@@ -4003,59 +4020,21 @@ async function verifyRequiredDocuments() {
       );
     }
 
-    const formData =
-      new FormData();
-
-    formData.append(
-      "document",
-      file
-    );
-
-    formData.append(
-      "document_type",
-      documentType
-    );
-
-    formData.append(
-      "first_name",
-      firstName
-    );
-
-    formData.append(
-      "middle_name",
-      middleName
-    );
-
-    formData.append(
-      "surname",
-      surname
-    );
-
-    formData.append(
-      "date_of_birth",
-      dateOfBirth
-    );
-
-    formData.append(
-      "place_of_birth",
-      placeOfBirth
-    );
-
-    formData.append(
-      "address",
-      addressForVerification
-    );
-
-
-    const response =
-      await fetch(
-        DOCUMENT_VERIFICATION_API,
-        {
-          method: "POST",
-          body: formData
-        }
-      );
-
+    const storedDocument = await uploadFileToPrivateStorage(file);
+    const response = await fetch(DOCUMENT_VERIFICATION_API, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        files: { document: [storedDocument] },
+        document_type: documentType,
+        first_name: firstName,
+        middle_name: middleName,
+        surname: surname,
+        date_of_birth: dateOfBirth,
+        place_of_birth: placeOfBirth,
+        address: addressForVerification
+      })
+    });
 
     let result;
 
@@ -4667,65 +4646,20 @@ function setupFormSubmitConfirmation() {
       mode === "duplicate-update" &&
       Boolean(duplicateSessionId);
 
-    const formData = new FormData();
+    const files = {};
+    const uploadFields = [
+      ["valid_id_front", "upload-valid-id-front"],
+      ["valid_id_back", "upload-valid-id-back"],
+      ["latest_photo", "upload-latest-photo"],
+      ["birth_certificate", "upload-birth-certificate"],
+      ["community_tax_certificate", "upload-cedula"],
+      ["signature", "upload-signature"],
+      ["verification_photo", "upload-verification"]
+    ];
 
-    formData.append("payload", JSON.stringify(payload));
-
-    const validIdFront =
-      document.getElementById("upload-valid-id-front")?.files?.[0];
-
-    if (validIdFront) {
-      formData.append("valid_id_front", validIdFront);
-    }
-
-    const validIdBack =
-      document.getElementById("upload-valid-id-back")?.files?.[0];
-
-    if (validIdBack) {
-      formData.append("valid_id_back", validIdBack);
-    }
-
-    const latestPhoto =
-      document.getElementById("upload-latest-photo")?.files?.[0];
-
-    if (latestPhoto) {
-      formData.append("latest_photo", latestPhoto);
-    }
-
-    const birthCertificate =
-      document.getElementById("upload-birth-certificate")?.files?.[0];
-
-    if (birthCertificate) {
-      formData.append("birth_certificate", birthCertificate);
-    }
-
-    const communityTax =
-      document.getElementById("upload-cedula")?.files?.[0];
-
-    if (communityTax) {
-      formData.append(
-        "community_tax_certificate",
-        communityTax
-      );
-    }
-
-    const signature =
-      document.getElementById("upload-signature")?.files?.[0];
-
-    if (signature) {
-      formData.append("signature", signature);
-    }
-
-    const verificationPhoto =
-      document.getElementById(
-        "upload-verification"
-      )?.files?.[0];
-
-    if (verificationPhoto) {
-      formData.append(
-        "verification_photo",
-        verificationPhoto
-      );
+    for (const [fieldName, inputId] of uploadFields) {
+      const file = document.getElementById(inputId)?.files?.[0];
+      if (file) files[fieldName] = [await uploadFileToPrivateStorage(file)];
     }
 
     let requestUrl = "";
@@ -4734,7 +4668,7 @@ function setupFormSubmitConfirmation() {
     if (isDuplicateUpdate) {
 
       requestUrl =
-        "https://osca-backend.onrender.com/api/applications/duplicate/verified/" +
+        "/api/applications/duplicate/verified/" +
         encodeURIComponent(
           duplicateSessionId
         );
@@ -4744,7 +4678,7 @@ function setupFormSubmitConfirmation() {
     } else if (isPendingEdit) {
 
       requestUrl =
-        "https://osca-backend.onrender.com/api/applications/" +
+        "/api/applications/" +
         encodeURIComponent(
           applicationId
         );
@@ -4754,14 +4688,15 @@ function setupFormSubmitConfirmation() {
     } else {
 
       requestUrl =
-        "https://osca-backend.onrender.com/api/applications/register";
+        "/api/applications/register";
 
       requestMethod = "POST";
     }
 
     const response = await fetch(requestUrl, {
       method: requestMethod,
-      body: formData
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ payload, files })
     });
 
     const responseText =
@@ -5924,7 +5859,7 @@ function setupVerificationPage() {
     return;
   }
 
-  const API_BASE_URL = 'https://osca-backend.onrender.com/api/applications';
+  const API_BASE_URL = '/api/applications';
   let currentApplicationId = "";
   let currentApplicationStatus = "";
 
@@ -6648,42 +6583,34 @@ function setupRequestIdModal() {
             applicationId
           );
 
-        const formData =
-          new FormData();
+        const uploadedFiles = {};
+        for (const [fileType, file] of Object.entries(temporaryFiles)) {
+          if (file) {
+            uploadedFiles[fileType] = [
+              await uploadFileToPrivateStorage(file)
+            ];
+          }
+        }
 
         const requestPayload = {
-          applicationChanges:
-            applicationChanges,
+          applicationChanges: applicationChanges,
           reason: reason,
           otherReason: otherReason
         };
 
-        formData.append(
-          "payload",
-          JSON.stringify(requestPayload)
-        );
-
-        Object.entries(
-          temporaryFiles
-        ).forEach(function ([fileType, file]) {
-          if (file) {
-            formData.append(
-              fileType,
-              file
-            );
+        const response = await fetch(
+          "/api/applications/" +
+          encodeURIComponent(applicationId) +
+          "/id-request",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              payload: requestPayload,
+              files: uploadedFiles
+            })
           }
-        });
-
-        const response =
-          await fetch(
-            "https://osca-backend.onrender.com/api/applications/" +
-            encodeURIComponent(applicationId) +
-            "/id-request",
-            {
-              method: "POST",
-              body: formData
-            }
-          );
+        );
 
         const result =
           await response.json();
@@ -6833,7 +6760,7 @@ async function verifyDuplicateApplicant(sessionId) {
     document.getElementById("barangay")?.value.trim() || "";
 
   const response = await fetch(
-    "https://osca-backend.onrender.com/api/applications/duplicate/verify",
+    "/api/applications/duplicate/verify",
     {
       method: "POST",
       headers: {
@@ -7018,7 +6945,7 @@ function showDuplicateRecordModal(
 
       const recoveryResponse =
         await fetch(
-          "https://osca-backend.onrender.com/api/applications/duplicate/recover/" +
+          "/api/applications/duplicate/recover/" +
           encodeURIComponent(
             recoverSessionId
           )
@@ -7610,7 +7537,7 @@ function setupOscaChatbot() {
 
       const response =
         await fetch(
-          "https://osca-backend.onrender.com/api/chatbot/message",
+          "/api/chatbot/message",
           {
             method: "POST",
 

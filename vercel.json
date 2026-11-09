@@ -1,0 +1,53 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "services": {
+    "frontend": {
+      "root": "."
+    },
+    "backend": {
+      "root": "backend",
+      "framework": "express",
+      "bindings": [
+        {
+          "type": "service",
+          "service": "face-verification",
+          "format": "url",
+          "env": "FACE_VERIFICATION_URL"
+        },
+        {
+          "type": "service",
+          "service": "document-verification",
+          "format": "url",
+          "env": "DOCUMENT_VERIFICATION_URL"
+        },
+        {
+          "type": "service",
+          "service": "age-verification",
+          "format": "url",
+          "env": "AGE_VERIFICATION_URL"
+        }
+      ]
+    },
+    "document-verification": {
+      "root": "document-verification",
+      "framework": "fastapi",
+      "entrypoint": "main:app"
+    },
+    "face-verification": {
+      "root": "face-verification",
+      "framework": "fastapi",
+      "entrypoint": "main:app"
+    },
+    "age-verification": {
+      "root": "age-verification",
+      "framework": "fastapi",
+      "entrypoint": "main:app"
+    }
+  },
+  "rewrites": [
+    { "source": "/health", "destination": { "service": "backend" } },
+    { "source": "/healthz", "destination": { "service": "backend" } },
+    { "source": "/api/(.*)", "destination": { "service": "backend" } },
+    { "source": "/(.*)", "destination": { "service": "frontend" } }
+  ]
+}
