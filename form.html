@@ -755,10 +755,13 @@
       </div>
       <div class="mobile-sheet-backdrop" hidden></div>
       <section class="mobile-sections-sheet" id="mobile-sections-sheet" role="dialog" aria-modal="true" aria-labelledby="mobile-sheet-title" tabindex="-1" hidden>
-        <button class="mobile-sheet-handle" type="button" aria-label="Close sections sheet by swiping down or tapping"><span></span></button>
-        <header class="mobile-sheet-heading"><h2 id="mobile-sheet-title">Application sections</h2><span class="mobile-sheet-counter" aria-live="polite">1 of 6</span></header>
+        <header class="mobile-sheet-heading">
+          <h2 id="mobile-sheet-title">Application sections</h2>
+          <button class="mobile-sheet-close" type="button" aria-label="Close application sections">
+            <span class="material-symbols-outlined" aria-hidden="true">close</span>
+          </button>
+        </header>
         <div class="mobile-sheet-rows"></div>
-        <button class="mobile-sheet-continue" type="button">Continue editing</button>
       </section>
     </main>
     </div>
@@ -1037,7 +1040,7 @@
         const sheetBackdrop = document.querySelector(".mobile-sheet-backdrop");
         const sheetRows = document.querySelector(".mobile-sheet-rows");
         const sheetCounter = document.querySelector(".mobile-sheet-counter");
-        const sheetHandle = document.querySelector(".mobile-sheet-handle");
+        const sheetHandle = document.querySelector(".mobile-sheet-close");
         const mobileBack = document.querySelector(".mobile-back");
         const mobileNext = document.querySelector(".mobile-next");
         const mobileNextLabel = document.querySelector(".mobile-next-label");
@@ -1406,19 +1409,10 @@
           }, window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 250);
           if (restoreFocus) mobileStepbar?.focus();
         }
-        mobileStepbar?.addEventListener("click", openSectionsSheet);
+        // The hamburger is handled by the accessible application-steps drawer below.
+        // Do not also open the legacy mobile sheet from the same button.
         sheetBackdrop?.addEventListener("click", () => closeSectionsSheet());
-        document.querySelector(".mobile-sheet-continue")?.addEventListener("click", () => closeSectionsSheet());
         sheetHandle?.addEventListener("click", () => closeSectionsSheet());
-        let handleTouchStartY = null;
-        sheetHandle?.addEventListener("pointerdown", event => {
-          handleTouchStartY = event.clientY;
-          sheetHandle.setPointerCapture(event.pointerId);
-        });
-        sheetHandle?.addEventListener("pointerup", event => {
-          if (handleTouchStartY !== null && event.clientY - handleTouchStartY > 45) closeSectionsSheet();
-          handleTouchStartY = null;
-        });
         sheetStepButtons.forEach((row, index) => row.addEventListener("click", () => {
           if (index === currentStepIndex) return closeSectionsSheet();
           if (unlockedSteps.has(index)) {
