@@ -339,7 +339,7 @@
           </div>
         </div>
 
-        <div class="row one">
+        <div class="row one" id="health-community-start">
           <div class="field checkbox-group">
             <p class="group-label">Areas Specialization / Skills (Check all applicable)</p>
             <div class="checkbox-options">
@@ -1006,8 +1006,10 @@
         if (sections.length !== 6) return;
 
         const background = sections[3];
+        // Use a stable markup ID instead of visible wording. The language
+        // switcher may translate labels before this initializer runs.
         const splitRow = [...background.children].findIndex(child =>
-          child.classList.contains("row") && child.textContent.toLowerCase().includes("areas specialization")
+          child.id === "health-community-start"
         );
         if (splitRow < 0) return;
         const health = document.createElement("section");
