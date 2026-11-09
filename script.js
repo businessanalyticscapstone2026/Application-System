@@ -35,13 +35,16 @@ async function uploadFileToPrivateStorage(file) {
   if (!ticketResponse.ok || !ticket.success || !ticket.path || !ticket.uploadUrl) {
     throw new Error(ticket.message || "Unable to prepare secure upload.");
   }
-  const uploadBody = new FormData();
-  uploadBody.append("cacheControl", "3600");
-  uploadBody.append("", file);
+  // Supabase signed-upload URLs expect the file bytes as the request body,
+  // not multipart/form-data. Sending FormData here stores an invalid wrapper
+  // instead of the original document/image.
   const uploadResponse = await fetch(ticket.uploadUrl, {
     method: "PUT",
-    headers: { "x-upsert": "false" },
-    body: uploadBody
+    headers: {
+      "Content-Type": file.type || "application/octet-stream",
+      "x-upsert": "false"
+    },
+    body: file
   });
   if (!uploadResponse.ok) {
     const failure = await uploadResponse.json().catch(() => ({}));
