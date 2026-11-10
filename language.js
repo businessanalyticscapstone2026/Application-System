@@ -226,8 +226,9 @@
     document.documentElement.lang = lang === "tl" ? "fil" : "en";
     const button = document.getElementById("oscaLanguageToggle");
     if (button) {
-      button.textContent = lang === "tl" ? "English" : "Tagalog";
-      button.setAttribute("aria-label", lang === "tl" ? "Switch to English" : "Lumipat sa Tagalog");
+      const label = lang === "tl" ? "Switch to English" : "Lumipat sa Tagalog";
+      button.setAttribute("aria-label", label);
+      button.title = label;
     }
   }
 
@@ -237,32 +238,31 @@
     button.id = "oscaLanguageToggle";
     button.type = "button";
     button.className = "osca-language-toggle";
-    button.textContent = language() === "tl" ? "English" : "Tagalog";
-    button.setAttribute("aria-label", language() === "tl" ? "Switch to English" : "Lumipat sa Tagalog");
+    const icon = document.createElement("span");
+    icon.className = "material-symbols-outlined";
+    icon.setAttribute("aria-hidden", "true");
+    icon.textContent = "language";
+    button.appendChild(icon);
+    const initialLabel = language() === "tl" ? "Switch to English" : "Lumipat sa Tagalog";
+    button.setAttribute("aria-label", initialLabel);
+    button.title = initialLabel;
     button.addEventListener("click", () => {
       const next = language() === "en" ? "tl" : "en";
       try { localStorage.setItem(STORAGE_KEY, next); } catch (_) {}
       translate(document);
     });
 
-    // Place the switcher in the page's existing header instead of floating
-    // over the content/chatbot. Standalone verification pages use a top edge.
-    const homeNav = document.querySelector("#mainHeader nav");
-    const formHeader = document.querySelector(".form-header");
-    const disclaimerHeader = document.querySelector(".disclaimer-hero");
-    const verifyHeader = document.querySelector(".verify-flow");
+    // Keep the language control directly below the floating chatbot button.
+    // This gives both controls the same persistent, overlapping position on every page.
+    const chatbot = document.getElementById("osca-chatbot");
+    const chatbotToggle = chatbot?.querySelector(".chatbot-toggle");
 
-    if (homeNav) {
-      const mobileMenuButton = homeNav.querySelector("#hamburgerBtn");
-      homeNav.insertBefore(button, mobileMenuButton || null);
-    } else if (formHeader) {
-      formHeader.appendChild(button);
-    } else if (disclaimerHeader) {
-      disclaimerHeader.appendChild(button);
-    } else if (verifyHeader) {
-      verifyHeader.appendChild(button);
+    if (chatbot && chatbotToggle) {
+      chatbotToggle.insertAdjacentElement("afterend", button);
+    } else if (chatbot) {
+      chatbot.appendChild(button);
     } else {
-      document.body.prepend(button);
+      document.body.appendChild(button);
     }
   }
 
