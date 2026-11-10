@@ -8705,3 +8705,33 @@ body.verify-page #oscaLanguageToggle {
     font-size: 9px !important;
   }
 }
+
+
+/* Keep the Registration Disclaimer close control at the far-right edge. */
+body.registration-page .disclaimer-hero {
+  position: relative;
+}
+
+body.registration-page .disclaimer-hero-copy {
+  flex: 1 1 auto;
+  padding-right: 58px;
+}
+
+body.registration-page .disclaimer-close {
+  position: absolute;
+  top: 22px;
+  right: 30px;
+  margin: 0;
+  z-index: 3;
+}
+
+@media (max-width: 680px) {
+  body.registration-page .disclaimer-hero-copy {
+    padding-right: 44px;
+  }
+
+  body.registration-page .disclaimer-close {
+    top: 17px;
+    right: 17px;
+  }
+}
