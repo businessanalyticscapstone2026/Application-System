@@ -17,11 +17,13 @@
     <div class="page-frame">
       <header class="form-header">
         <div class="header-text">
-          <p>OFFICE OF SENIOR CITIZENS AFFAIRS</p>
-          <p>MUNICIPALITY OF BAUAN</p>
+          <div class="logo-box"><img src="OSCA Bauan Logo.jpg" alt="OSCA Bauan logo" /></div>
+          <div class="header-copy">
+            <p>OFFICE OF THE SENIOR CITIZENS AFFAIRS</p>
+            <p>MUNICIPALITY OF BAUAN</p>
+          </div>
         </div>
         <div class="header-bottom">
-          <div class="logo-box"><img src="OSCA Bauan Logo.jpg" alt="Logo" /></div>
           <div class="title-bar">ONLINE SENIOR CITIZEN ID APPLICATION FORM</div>
         </div>
       </header>
@@ -1143,16 +1145,18 @@
           panel.prepend(header);
           const actions = document.createElement("div");
           actions.className = "form-step-actions";
-          if (index > 0) {
-            const back = document.createElement("button");
-            back.type = "button";
-            back.className = "form-step-back";
-            back.textContent = "Back";
-            back.addEventListener("click", () => showStep(index - 1));
-            actions.append(back);
-          } else {
-            actions.insertAdjacentHTML("beforeend", '<span class="form-step-required">* Required to continue</span>');
-          }
+          const back = document.createElement("button");
+          back.type = "button";
+          back.className = "form-step-back";
+          back.textContent = "Back";
+          back.addEventListener("click", () => {
+            if (index === 0) {
+              window.location.href = "register-disclaimer.html";
+              return;
+            }
+            showStep(index - 1);
+          });
+          actions.append(back);
           {
             const next = document.createElement("button");
             next.type = "button";
@@ -1176,20 +1180,35 @@
         });
 
         function cancelApplication() {
-          const confirmed = window.confirm(
-            "Are you sure you want to cancel this application? " +
-            "Any information not submitted may be lost."
-          );
-
-          if (!confirmed) return;
-
-          clearSavedDraft();
-
-          window.location.href = "index.html";
+          const finishCancellation = () => {
+            clearSavedDraft();
+            window.location.href = "index.html";
+          };
+          if (typeof showConfirmationModal === "function") {
+            showConfirmationModal(
+              "Cancel this application?",
+              "Your saved application draft will be removed. You can keep filling it out if you are not ready to cancel.",
+              finishCancellation,
+              {
+                className: "application-cancel-confirmation",
+                icon: "warning",
+                eyebrow: "APPLICATION ACTION",
+                showClose: true,
+                confirmText: "Yes, Cancel Application",
+                cancelText: "Keep Filling",
+                cancelFirst: true,
+                focusCancel: true
+              }
+            );
+            return;
+          }
+          if (window.confirm("Cancel this application? Your saved draft will be removed.")) {
+            finishCancellation();
+          }
         }
         function showStep(index, moveFocus = false) {
           currentStepIndex = index;
-          if (mobileBack) mobileBack.hidden = index === 0;
+          if (mobileBack) mobileBack.hidden = false;
           steps.forEach((step, i) => {
             step.hidden = i !== index;
             step.setAttribute("aria-hidden", String(i !== index));
@@ -1236,7 +1255,7 @@
             row.querySelector(".mobile-sheet-done").hidden = !isComplete || isCurrent;
             row.querySelector(".mobile-sheet-lock").hidden = isReachable;
           });
-          if (mobileBack) {mobileBack.hidden = index === 0; mobileBack.disabled = index === 0;}
+          if (mobileBack) { mobileBack.hidden = false; mobileBack.disabled = false; }
           if (mobileNext) {
             const nextTitle = stepInfo[index + 1]?.short;
             if (mobileNextLabel) mobileNextLabel.textContent = nextTitle ? "Continue" : "Review and submit";
@@ -1424,9 +1443,15 @@
           if (!completedSteps.has(index)) return;
           showStep(index, true);
         }));
-        mobileBack?.addEventListener("click", () => { if (currentStepIndex > 0) showStep(currentStepIndex - 1); });
+        mobileBack?.addEventListener("click", () => {
+          if (currentStepIndex === 0) {
+            window.location.href = "register-disclaimer.html";
+            return;
+          }
+          showStep(currentStepIndex - 1);
+        });
         mobileNext?.addEventListener("click", () => advanceStep(currentStepIndex));
-        document.querySelector(".mobile-cancel-application")?.addEventListener("click", () => document.getElementById("cancel-application")?.click());
+        document.querySelector(".mobile-cancel-application")?.addEventListener("click", cancelApplication);
         document.addEventListener("application:draft-saved", () => {
           if (mobileDraftStatus) mobileDraftStatus.textContent = "Draft saved";
         });
@@ -1878,10 +1903,40 @@
 
         if (menuButton && sectionPanel && backdrop) {
           let menuOpen = false;
+          let drawerScrollY = 0;
+          let bodyScrollStyles = null;
+
+          const setPageScrollLocked = (locked) => {
+            const body = document.body;
+            if (locked && !body.classList.contains("steps-drawer-open")) {
+              drawerScrollY = window.scrollY || document.documentElement.scrollTop || 0;
+              bodyScrollStyles = {
+                position: body.style.position,
+                top: body.style.top,
+                left: body.style.left,
+                right: body.style.right,
+                width: body.style.width
+              };
+              body.classList.add("steps-drawer-open");
+              body.style.position = "fixed";
+              body.style.top = `-${drawerScrollY}px`;
+              body.style.left = "0";
+              body.style.right = "0";
+              body.style.width = "100%";
+            } else if (!locked && body.classList.contains("steps-drawer-open")) {
+              body.classList.remove("steps-drawer-open");
+              Object.entries(bodyScrollStyles || {}).forEach(([property, value]) => {
+                body.style[property] = value;
+              });
+              bodyScrollStyles = null;
+              window.scrollTo(0, drawerScrollY);
+            }
+          };
 
           const syncNavigationMode = () => {
             if (!mobileNavigation.matches) {
               menuOpen = false;
+              setPageScrollLocked(false);
               wrapper.classList.remove("mobile-menu-open");
               sectionPanel.classList.remove("is-mobile-open");
               sectionPanel.inert = false;
@@ -1891,6 +1946,7 @@
               if (menuIcon) menuIcon.textContent = "menu";
               return;
             }
+            setPageScrollLocked(menuOpen);
             sectionPanel.inert = !menuOpen;
             sectionPanel.setAttribute("aria-hidden", String(!menuOpen));
             sectionPanel.classList.toggle("is-mobile-open", menuOpen);
@@ -1914,6 +1970,8 @@
             syncNavigationMode();
             wrapper.classList.toggle("mobile-menu-open", menuOpen);
             if (menuOpen) {
+              const sectionList = sectionPanel.querySelector(".steps-nav");
+              if (sectionList) sectionList.scrollTop = 0;
               const firstLink = sectionPanel.querySelector(".steps-nav a");
               firstLink?.focus({ preventScroll: true });
             }
