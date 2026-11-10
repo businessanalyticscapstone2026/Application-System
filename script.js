@@ -5706,22 +5706,31 @@ function setupHomepageNavigation() {
 }
 
 function setupContactMap() {
-  const mapFrame = document.getElementById("contact-map-iframe");
-  if (!mapFrame) return;
-  const mapCanvas = mapFrame.closest(".contact-map-canvas");
-  let skeletonFallback;
-  const showMapSkeleton = function () {
-    if (mapCanvas) mapCanvas.classList.remove("map-loaded");
-    window.clearTimeout(skeletonFallback);
-    skeletonFallback = window.setTimeout(function () {
-      if (mapCanvas) mapCanvas.classList.add("map-loaded");
-    }, 10000);
-  };
-  mapFrame.addEventListener("load", function () {
-    window.clearTimeout(skeletonFallback);
+  const mapElement = document.getElementById("contact-map");
+  if (!mapElement || !window.L) return;
+  const mapCanvas = mapElement.closest(".contact-map-canvas");
+  const officeLocation = [13.79379, 121.00714];
+  const map = L.map(mapElement, { scrollWheelZoom: false, zoomControl: true }).setView(officeLocation, 17);
+  const streetLayer = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 19,
+    maxNativeZoom: 17,
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+  });
+  streetLayer.once("load", function () {
     if (mapCanvas) mapCanvas.classList.add("map-loaded");
   });
-  showMapSkeleton();
+  streetLayer.addTo(map);
+  L.marker(officeLocation, { title: "OSCA Bauan Municipal Hall", alt: "OSCA Bauan office location" })
+    .addTo(map);
+
+  window.setTimeout(function () {
+    if (mapCanvas) mapCanvas.classList.add("map-loaded");
+  }, 10000);
+
+  document.getElementById("map-center-button")?.addEventListener("click", function () {
+    map.stop();
+    map.setView(officeLocation, 17, { animate: false });
+  });
 }
 
 function normalizeApplicationId(value) {
