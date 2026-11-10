@@ -5372,25 +5372,33 @@ function setupDisclaimerPage() {
     }
   };
 
+  // Track the CAPTCHA state through Google's callbacks instead of calling
+  // grecaptcha.getResponse() during page initialization. Calling getResponse
+  // before the widget has finished registering its client can throw
+  // "No reCAPTCHA clients exist".
+  let captchaVerified = false;
+
   const hasCaptchaResponse = function () {
-    return typeof window.grecaptcha !== "undefined" &&
-      typeof window.grecaptcha.getResponse === "function" &&
-      window.grecaptcha.getResponse().length > 0;
+    return captchaVerified;
   };
 
   const updateContinueState = function () {
-    const captchaReady = hasCaptchaResponse();
-    continueButton.disabled = !(consentCheckbox.checked && captchaReady);
+    continueButton.disabled = !(consentCheckbox.checked && captchaVerified);
   };
 
-  window.handleRecaptchaSuccess = function () {
-    sessionStorage.setItem("applicationFormAccess", "verified");
-
-    hideDisclaimerError();
+  window.handleRecaptchaSuccess = function (responseToken) {
+    captchaVerified = Boolean(responseToken);
+    if (captchaVerified) {
+      sessionStorage.setItem("applicationFormAccess", "verified");
+      hideDisclaimerError();
+    } else {
+      sessionStorage.removeItem("applicationFormAccess");
+    }
     updateContinueState();
   };
 
   window.handleRecaptchaExpired = function () {
+    captchaVerified = false;
     sessionStorage.removeItem("applicationFormAccess");
 
     showDisclaimerError("CAPTCHA has expired. Please complete it again.");
