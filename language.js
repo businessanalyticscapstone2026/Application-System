@@ -212,15 +212,25 @@
     }
   }
 
+  // Keep original attribute text outside DOMStringMap. Attribute names such as
+  // "aria-label" contain hyphens and cannot be used as dataset property names.
+  const originalAttributes = new WeakMap();
+
   function translateAttributes(root, lang) {
     const elements = root.nodeType === 1 ? [root, ...root.querySelectorAll("*")] : [...document.querySelectorAll("*")];
     for (const el of elements) {
       for (const attr of ["placeholder", "aria-label", "title", "alt", "value"]) {
         if (!el.hasAttribute?.(attr)) continue;
         if (attr === "value" && !(el.tagName === "BUTTON" || (el.tagName === "INPUT" && ["button", "submit", "reset"].includes((el.type || "").toLowerCase())))) continue;
-        const key = "__oscaOriginal_" + attr;
-        if (!(key in el.dataset)) el.dataset[key] = el.getAttribute(attr) || "";
-        const original = el.dataset[key];
+
+        let originals = originalAttributes.get(el);
+        if (!originals) {
+          originals = new Map();
+          originalAttributes.set(el, originals);
+        }
+        if (!originals.has(attr)) originals.set(attr, el.getAttribute(attr) || "");
+
+        const original = originals.get(attr);
         const translated = lang === "tl" ? (ATTRIBUTE_TRANSLATIONS[original] || TL[original]) : null;
         if (translated) el.setAttribute(attr, translated);
         else if (lang === "en") el.setAttribute(attr, original);
