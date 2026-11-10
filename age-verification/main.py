@@ -32,7 +32,7 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://application-system-kappa.vercel.app"
+        "https://www.osca-application.techsite.live"
     ],
     allow_credentials=False,
     allow_methods=["*"],

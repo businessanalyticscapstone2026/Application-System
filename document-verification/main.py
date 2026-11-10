@@ -51,7 +51,7 @@ app.add_middleware(
         "http://localhost:5500",
         "http://127.0.0.1:3000",
         "http://localhost:3000",
-        "https://application-system-kappa.vercel.app"
+        "https://www.osca-application.techsite.live"
     ],
     allow_credentials=False,
     allow_methods=["*"],
