@@ -180,6 +180,18 @@
     catch (_) { return DEFAULT_LANGUAGE; }
   }
 
+  // Always show the destination language (the language the button will switch to).
+  function updateSwitcherLabel(currentLanguage) {
+    const button = document.getElementById("oscaLanguageToggle");
+    if (!button) return;
+    const destinationCode = currentLanguage === "tl" ? "ENG" : "TAG";
+    const destinationLabel = currentLanguage === "tl" ? "Switch to English" : "Lumipat sa Tagalog";
+    const languageText = button.querySelector(".osca-language-code");
+    if (languageText) languageText.textContent = destinationCode;
+    button.setAttribute("aria-label", destinationLabel);
+    button.title = destinationLabel;
+  }
+
   function translateTextNode(node, lang) {
     if (!node || !node.nodeValue || !node.nodeValue.trim()) return;
     if (node.parentElement?.closest("script,style,noscript,textarea,input,[contenteditable='true'],#oscaLanguageToggle")) return;
@@ -224,14 +236,7 @@
     nodes.forEach(node => translateTextNode(node, lang));
     translateAttributes(root, lang);
     document.documentElement.lang = lang === "tl" ? "fil" : "en";
-    const button = document.getElementById("oscaLanguageToggle");
-    if (button) {
-      const label = lang === "tl" ? "Switch to English" : "Lumipat sa Tagalog";
-      button.setAttribute("aria-label", label);
-      button.title = label;
-      const languageText = button.querySelector(".osca-language-code");
-      if (languageText) languageText.textContent = lang === "tl" ? "ENG" : "TAG";
-    }
+    updateSwitcherLabel(lang);
   }
 
   function addSwitcher() {
@@ -255,6 +260,8 @@
     button.addEventListener("click", () => {
       const next = language() === "en" ? "tl" : "en";
       try { localStorage.setItem(STORAGE_KEY, next); } catch (_) {}
+      // Update the destination label immediately, then translate the whole page.
+      updateSwitcherLabel(next);
       translate(document);
     });
 
