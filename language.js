@@ -229,6 +229,8 @@
       const label = lang === "tl" ? "Switch to English" : "Lumipat sa Tagalog";
       button.setAttribute("aria-label", label);
       button.title = label;
+      const languageText = button.querySelector(".osca-language-code");
+      if (languageText) languageText.textContent = lang === "tl" ? "TAG" : "ENG";
     }
   }
 
@@ -243,6 +245,10 @@
     icon.setAttribute("aria-hidden", "true");
     icon.textContent = "language";
     button.appendChild(icon);
+    const languageCode = document.createElement("span");
+    languageCode.className = "osca-language-code";
+    languageCode.textContent = language() === "tl" ? "TAG" : "ENG";
+    button.appendChild(languageCode);
     const initialLabel = language() === "tl" ? "Switch to English" : "Lumipat sa Tagalog";
     button.setAttribute("aria-label", initialLabel);
     button.title = initialLabel;
