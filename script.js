@@ -3481,9 +3481,9 @@ function setupApplicantAge() {
   }
 }
 
-function showConfirmationModal(title, message, onConfirm) {
+function showConfirmationModal(title, message, onConfirm, options = {}) {
   const backdrop = document.createElement("div");
-  backdrop.className = "modal-backdrop";
+  backdrop.className = `modal-backdrop ${options.className || ""}`.trim();
   backdrop.setAttribute("role", "presentation");
 
   const modal = document.createElement("div");
@@ -3494,6 +3494,37 @@ function showConfirmationModal(title, message, onConfirm) {
 
   const content = document.createElement("div");
   content.className = "modal-content";
+
+  if (options.icon || options.showClose) {
+    const top = document.createElement("div");
+    top.className = "modal-topline";
+    if (options.icon) {
+      const icon = document.createElement("span");
+      icon.className = "modal-icon material-symbols-outlined";
+      icon.textContent = options.icon;
+      icon.setAttribute("aria-hidden", "true");
+      top.appendChild(icon);
+    }
+    if (options.showClose) {
+      const closeBtn = document.createElement("button");
+      closeBtn.type = "button";
+      closeBtn.className = "modal-close";
+      closeBtn.setAttribute("aria-label", "Close confirmation");
+      closeBtn.innerHTML = '<span class="material-symbols-outlined" aria-hidden="true">close</span>';
+      closeBtn.addEventListener("click", function () {
+        document.body.removeChild(backdrop);
+      });
+      top.appendChild(closeBtn);
+    }
+    content.appendChild(top);
+  }
+
+  if (options.eyebrow) {
+    const eyebrow = document.createElement("p");
+    eyebrow.className = "modal-eyebrow";
+    eyebrow.textContent = options.eyebrow;
+    content.appendChild(eyebrow);
+  }
 
   const titleEl = document.createElement("h2");
   titleEl.id = "modal-title";
@@ -3510,7 +3541,7 @@ function showConfirmationModal(title, message, onConfirm) {
   const confirmBtn = document.createElement("button");
   confirmBtn.type = "button";
   confirmBtn.className = "modal-btn modal-btn-danger";
-  confirmBtn.textContent = "Yes";
+  confirmBtn.textContent = options.confirmText || "Yes";
   confirmBtn.addEventListener("click", function () {
     document.body.removeChild(backdrop);
     if (typeof onConfirm === "function") {
@@ -3521,7 +3552,7 @@ function showConfirmationModal(title, message, onConfirm) {
   const cancelBtn = document.createElement("button");
   cancelBtn.type = "button";
   cancelBtn.className = "modal-btn modal-btn-secondary";
-  cancelBtn.textContent = "No, Keep Filling";
+  cancelBtn.textContent = options.cancelText || "No, Keep Filling";
   cancelBtn.addEventListener("click", function () {
     document.body.removeChild(backdrop);
   });
@@ -3532,8 +3563,13 @@ function showConfirmationModal(title, message, onConfirm) {
     }
   });
 
-  buttonContainer.appendChild(confirmBtn);
-  buttonContainer.appendChild(cancelBtn);
+  if (options.cancelFirst) {
+    buttonContainer.appendChild(cancelBtn);
+    buttonContainer.appendChild(confirmBtn);
+  } else {
+    buttonContainer.appendChild(confirmBtn);
+    buttonContainer.appendChild(cancelBtn);
+  }
 
   content.appendChild(titleEl);
   content.appendChild(messageEl);
@@ -3544,7 +3580,7 @@ function showConfirmationModal(title, message, onConfirm) {
 
   document.body.appendChild(backdrop);
 
-  confirmBtn.focus();
+  (options.focusCancel ? cancelBtn : confirmBtn).focus();
 }
 
 function getApplicationDraftKey() {

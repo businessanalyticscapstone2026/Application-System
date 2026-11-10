@@ -19,6 +19,323 @@
   --line: #d9e0e9;
   --paper: #f7f8fa;
 }
+
+/* Keep the OSCA mark beside the office identity above the form title bar. */
+body.application-form-page .page-frame > .form-header .header-text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding-bottom: 8px;
+}
+body.application-form-page .page-frame > .form-header .header-copy {
+  text-align: left;
+}
+body.application-form-page .page-frame > .form-header .header-copy p {
+  text-align: left;
+}
+body.application-form-page .page-frame > .form-header .header-copy p:first-child { font-size: .88rem; }
+body.application-form-page .page-frame > .form-header .header-copy p + p { font-size: 1.18rem; }
+body.application-form-page .page-frame > .form-header .header-text .logo-box {
+  position: static;
+  flex: 0 0 62px;
+  width: 62px;
+  height: 62px;
+  transform: none;
+  padding: 3px;
+  border-radius: 50%;
+}
+
+body.application-form-page .modal-backdrop.application-cancel-confirmation {
+  z-index: 1200 !important;
+  padding: 20px !important;
+  background: rgba(10, 27, 55, .58) !important;
+  backdrop-filter: blur(5px);
+}
+body.application-form-page .application-cancel-confirmation .custom-modal {
+  max-width: 680px !important;
+  overflow: hidden;
+  border: 1px solid #e4eaf2;
+  border-radius: 20px !important;
+  box-shadow: 0 28px 80px rgba(8, 24, 50, .3) !important;
+}
+body.application-form-page .application-cancel-confirmation .modal-content {
+  position: relative !important;
+  padding: 42px 48px 40px !important;
+  text-align: left !important;
+}
+body.application-form-page .application-cancel-confirmation .modal-topline {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  margin-bottom: 28px !important;
+}
+body.application-form-page .application-cancel-confirmation .modal-icon {
+  display: grid !important;
+  width: 72px !important;
+  height: 72px !important;
+  place-items: center !important;
+  border-radius: 22px !important;
+  background: #fff0f1 !important;
+  color: #b42332 !important;
+  font-size: 34px !important;
+}
+body.application-form-page .application-cancel-confirmation .modal-close {
+  display: grid !important;
+  width: 58px !important;
+  height: 58px !important;
+  place-items: center !important;
+  border: 1px solid #d8e2ef !important;
+  border-radius: 50% !important;
+  background: #fff !important;
+  color: #173a78 !important;
+  cursor: pointer !important;
+}
+body.application-form-page .application-cancel-confirmation .modal-close .material-symbols-outlined {
+  font-size: 28px !important;
+}
+body.application-form-page .application-cancel-confirmation .modal-close:hover {
+  background: #f4f7fb !important;
+}
+body.application-form-page .application-cancel-confirmation .modal-eyebrow {
+  display: flex !important;
+  align-items: center !important;
+  gap: 16px !important;
+  margin: 0 0 16px !important;
+  color: #64748b !important;
+  font-size: .95rem !important;
+  font-weight: 800 !important;
+  letter-spacing: .14em !important;
+}
+body.application-form-page .application-cancel-confirmation .modal-eyebrow::before {
+  width: 54px;
+  height: 4px;
+  border-radius: 99px;
+  background: #64748b;
+  content: "";
+}
+body.application-form-page .application-cancel-confirmation .modal-title {
+  margin-bottom: 14px !important;
+  color: #122b50 !important;
+  font-size: clamp(2rem, 4.4vw, 3rem) !important;
+  line-height: 1.08 !important;
+  letter-spacing: -.045em !important;
+}
+body.application-form-page .application-cancel-confirmation .modal-message {
+  max-width: 560px !important;
+  margin-bottom: 34px !important;
+  color: #52627a !important;
+  font-size: 1.08rem !important;
+  line-height: 1.7 !important;
+}
+body.application-form-page .application-cancel-confirmation .modal-buttons {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr) !important;
+  gap: 10px !important;
+}
+body.application-form-page .application-cancel-confirmation .modal-btn {
+  min-height: 50px !important;
+  padding: 10px 14px !important;
+  border-width: 1px !important;
+  border-radius: 11px !important;
+  font-size: .94rem !important;
+  transition: background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+}
+body.application-form-page .application-cancel-confirmation .modal-btn-secondary {
+  border-color: #d3deeb !important;
+  background: #fff !important;
+  color: #294260 !important;
+}
+body.application-form-page .application-cancel-confirmation .modal-btn-secondary:hover {
+  border-color: #aabbd0 !important;
+  background: #f4f7fb !important;
+  box-shadow: 0 4px 12px rgba(19, 43, 78, .08);
+}
+body.application-form-page .application-cancel-confirmation .modal-btn-danger {
+  border-color: #b42332 !important;
+  background: #b42332 !important;
+  color: #fff !important;
+}
+body.application-form-page .application-cancel-confirmation .modal-btn-danger:hover {
+  border-color: #951c29 !important;
+  background: #951c29 !important;
+  box-shadow: 0 5px 14px rgba(180, 35, 50, .2);
+}
+body.application-form-page .application-cancel-confirmation .modal-btn:focus-visible {
+  outline: 3px solid rgba(49, 91, 155, .35) !important;
+  outline-offset: 3px !important;
+}
+
+@media (max-width: 520px) {
+  body.application-form-page .modal-backdrop.application-cancel-confirmation { padding: 20px !important; }
+  body.application-form-page .application-cancel-confirmation .custom-modal {
+    width: 100% !important;
+    max-height: calc(100dvh - 40px) !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain;
+    border-radius: 17px !important;
+  }
+  body.application-form-page .application-cancel-confirmation .modal-content { padding: 20px 18px 18px !important; }
+  body.application-form-page .application-cancel-confirmation .modal-topline { margin-bottom: 16px !important; }
+  body.application-form-page .application-cancel-confirmation .modal-icon { width: 48px !important; height: 48px !important; border-radius: 15px !important; font-size: 24px !important; }
+  body.application-form-page .application-cancel-confirmation .modal-close { width: 42px !important; height: 42px !important; }
+  body.application-form-page .application-cancel-confirmation .modal-close .material-symbols-outlined { font-size: 23px !important; }
+  body.application-form-page .application-cancel-confirmation .modal-eyebrow { gap: 10px !important; margin-bottom: 10px !important; font-size: .76rem !important; }
+  body.application-form-page .application-cancel-confirmation .modal-eyebrow::before { width: 34px; height: 3px; }
+  body.application-form-page .application-cancel-confirmation .modal-title { margin-bottom: 9px !important; font-size: 1.55rem !important; }
+  body.application-form-page .application-cancel-confirmation .modal-message { margin-bottom: 18px !important; font-size: .9rem !important; line-height: 1.5 !important; }
+  body.application-form-page .application-cancel-confirmation .modal-buttons {
+    grid-template-columns: 1fr !important;
+    width: 100% !important;
+  }
+  body.application-form-page .application-cancel-confirmation .modal-btn {
+    width: 100% !important;
+    min-height: 46px !important;
+  }
+}
+
+@media (max-width: 520px) {
+  body.application-form-page .page-frame > .form-header .header-text { gap: 10px; }
+  body.application-form-page .page-frame > .form-header .header-text .logo-box {
+    flex-basis: 50px;
+    width: 50px;
+    height: 50px;
+  }
+  body.application-form-page .page-frame > .form-header .header-copy p:first-child {
+    font-size: .76rem;
+    letter-spacing: .06em;
+  }
+  body.application-form-page .page-frame > .form-header .header-copy p + p { font-size: 1rem; }
+}
+
+@media (min-width: 901px) {
+  body.application-form-page .application-steps .steps-nav .step-label {
+    align-items: center !important;
+    text-align: center !important;
+  }
+  body.application-form-page .application-steps .steps-nav .step-label strong:nth-child(2) {
+    color: #64748b !important;
+  }
+}
+
+@media (max-width: 900px) {
+  body.application-form-page .mobile-progress-segment.is-complete::before {
+    background: #16834a !important;
+  }
+  body.application-form-page .application-steps .steps-nav a.is-complete:not(.is-current) {
+    border-color: #c6e6d2 !important;
+    background: #f2faf5 !important;
+    color: #214c35 !important;
+  }
+  body.application-form-page .application-steps .steps-nav a.is-complete:not(.is-current) > .step-number {
+    border-color: #16834a !important;
+    background: #16834a !important;
+    color: #fff !important;
+  }
+  body.application-form-page .application-steps .steps-nav a.is-complete:not(.is-current) > .step-number > .step-number-text {
+    display: none !important;
+  }
+  body.application-form-page .application-steps .steps-nav a.is-complete:not(.is-current) > .step-number > .step-number-check {
+    display: grid !important;
+    width: 100% !important;
+    height: 100% !important;
+    place-items: center !important;
+    color: inherit !important;
+    font-size: 18px !important;
+  }
+  body.application-form-page .application-steps .steps-nav a.is-complete:not(.is-current) > .step-state .step-status-done {
+    display: none !important;
+  }
+}
+
+@media (min-width: 1101px) {
+  body.application-form-page .form-step-actions { gap: 12px; padding-top: 20px; }
+  body.application-form-page .form-step-actions .form-step-back,
+  body.application-form-page .form-step-actions .form-step-next,
+  body.application-form-page .form-step-actions .form-cancel-application {
+    min-height: 54px !important;
+    border-radius: 12px !important;
+    transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+  }
+  body.application-form-page .form-step-actions .form-step-back {
+    padding-inline: 26px !important;
+    border-color: #d6e0ed !important;
+    background: #fff !important;
+    color: #314865 !important;
+  }
+  body.application-form-page .form-step-actions .form-step-next {
+    min-width: 184px !important;
+    padding-inline: 24px !important;
+    border-color: #183d7d !important;
+    border-radius: 13px !important;
+    background: linear-gradient(135deg, #214e96, #173a78) !important;
+    box-shadow: 0 8px 18px rgba(23, 58, 124, .2) !important;
+  }
+  body.application-form-page .form-step-actions .form-cancel-application {
+    margin-left: 4px !important;
+    padding-inline: 22px !important;
+    border-color: #e9a3aa !important;
+    background: #fff !important;
+    color: #b42332 !important;
+  }
+  body.application-form-page .form-step-actions .form-step-back:hover { background: #f5f8fc; }
+  body.application-form-page .form-step-actions .form-step-next:hover {
+    background: linear-gradient(135deg, #173d7d, #102d62);
+    box-shadow: 0 10px 22px rgba(23, 58, 124, .26);
+    transform: translateY(-1px);
+  }
+  body.application-form-page .form-step-actions .form-cancel-application:hover {
+    border-color: #d97782;
+    background: #fff5f5;
+  }
+}
+
+body.application-form-page .form-step-actions button:active,
+body.application-form-page .mobile-action-buttons button:active { transform: translateY(1px); }
+body.application-form-page .form-step-actions button:focus-visible,
+body.application-form-page .mobile-action-buttons button:focus-visible {
+  outline: 3px solid rgba(49, 91, 155, .35);
+  outline-offset: 3px;
+}
+
+@media (max-width: 1100px) {
+  body.application-form-page .mobile-action-buttons .mobile-back,
+  body.application-form-page .mobile-action-buttons .mobile-next,
+  body.application-form-page .mobile-action-buttons .mobile-cancel-application {
+    min-height: 52px !important;
+    border-radius: 12px !important;
+    transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease !important;
+  }
+  body.application-form-page .mobile-action-buttons .mobile-back {
+    border-color: #d6e0ed !important;
+    background: #fff !important;
+    color: #314865 !important;
+  }
+  body.application-form-page .mobile-action-buttons .mobile-next {
+    border-color: #183d7d !important;
+    background: linear-gradient(135deg, #214e96, #173a78) !important;
+    box-shadow: 0 6px 15px rgba(23, 58, 124, .18) !important;
+  }
+  body.application-form-page .mobile-action-buttons .mobile-cancel-application {
+    min-height: 46px !important;
+    border-color: #e9a3aa !important;
+    background: #fff !important;
+    color: #b42332 !important;
+  }
+  body.application-form-page .mobile-action-buttons .mobile-back:hover { background: #f5f8fc !important; }
+  body.application-form-page .mobile-action-buttons .mobile-next:hover {
+    background: linear-gradient(135deg, #173d7d, #102d62) !important;
+  }
+  body.application-form-page .mobile-action-buttons .mobile-cancel-application:hover {
+    background: #fff5f5 !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.application-form-page .form-step-actions button,
+  body.application-form-page .mobile-action-buttons button { transition: none !important; }
+}
 * { box-sizing: border-box; }
 
 /* Desktop: keep the application within the viewport and avoid a second page scrollbar. */
@@ -602,7 +919,10 @@ body.application-form-page .steps-backdrop {
     background: rgba(34,139,94,.28);
     color: #c4f3dd;
   }
-  body.application-form-page.steps-drawer-open { overflow: hidden; }
+  body.application-form-page.steps-drawer-open {
+    overflow: hidden !important;
+    overscroll-behavior: none;
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   body.application-form-page .application-steps { transition: none; }
@@ -773,7 +1093,6 @@ body.application-form-page .mobile-sticky-area { display: none; }
     background: #fff;
     color: #334155;
   }
-  body.application-form-page .mobile-back:disabled { opacity: 1; cursor: default; }
   body.application-form-page .mobile-next {
     flex: 1;
     display: flex;
@@ -911,7 +1230,7 @@ body.application-form-page .mobile-sticky-area { display: none; }
     font-size: .8rem;
     white-space: nowrap;
   }
-  body.application-form-page .mobile-sheet-done { color: #0f2557; font-weight: 800; }
+  body.application-form-page .mobile-sheet-done { color: #16834a; font-weight: 800; }
   body.application-form-page .mobile-sheet-lock { font-size: 19px; }
   body.application-form-page .mobile-sheet-row.is-current {
     border-color: #f1c6c9;
@@ -924,11 +1243,18 @@ body.application-form-page .mobile-sticky-area { display: none; }
     color: #fff;
   }
   body.application-form-page .mobile-sheet-row.is-current .mobile-sheet-label { color: #c83c3b; font-weight: 800; }
+  body.application-form-page .mobile-sheet-row.is-complete:not(.is-current) {
+    border-color: #c6e6d2;
+    background: #f2faf5;
+    color: #214c35;
+  }
   body.application-form-page .mobile-sheet-row.is-complete:not(.is-current) .mobile-sheet-number {
-    border-color: #0f2557;
-    background: #0f2557;
+    border-color: #16834a;
+    background: #16834a;
     color: #fff;
   }
+  body.application-form-page .mobile-sheet-row.is-complete:not(.is-current) .mobile-sheet-label,
+  body.application-form-page .mobile-sheet-row.is-complete:not(.is-current) .mobile-sheet-done { color: #16834a; }
   body.application-form-page .mobile-sheet-row.is-complete .mobile-sheet-number-text { display: none; }
   body.application-form-page .mobile-sheet-row.is-complete .mobile-sheet-check { display: block; }
   body.application-form-page .mobile-sheet-row:disabled {
@@ -1571,8 +1897,7 @@ body.application-form-page .application-form-card {
     height: 0 !important;
     min-height: 0 !important;
     max-height: none !important;
-    overflow-x: hidden !important;
-    overflow-y: auto !important;
+    overflow: hidden !important;
   }
 }
 @media (max-width: 600px) {
@@ -2275,8 +2600,7 @@ body.application-form-page .application-form-card {
     min-height: 0 !important;
     max-height: none !important;
     padding: 20px 16px !important;
-    overflow-x: hidden !important;
-    overflow-y: auto !important;
+    overflow: hidden !important;
     border: 0 !important;
     border-radius: 18px !important;
     background: var(--blue-dark, #102b5c) !important;
@@ -2297,6 +2621,7 @@ body.application-form-page .application-form-card {
     justify-content: space-between !important;
     gap: 12px !important;
     margin-bottom: 18px !important;
+    flex: 0 0 auto !important;
     color: #fff !important;
   }
 
@@ -2321,9 +2646,15 @@ body.application-form-page .application-form-card {
 
   body.application-form-page .application-steps .steps-nav {
     display: flex !important;
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
     flex-direction: column !important;
     gap: 8px !important;
     margin: 0 !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain !important;
+    -webkit-overflow-scrolling: touch;
   }
 
   body.application-form-page .application-steps .steps-nav a {
@@ -2533,5 +2864,53 @@ body.application-form-page .application-form-card {
 
   body.application-form-page .application-steps .steps-nav a.is-locked:not(.is-current) .step-status-locked {
     color: #8792a1 !important;
+  }
+}
+
+@media (min-width: 901px) {
+  body.application-form-page .application-steps .steps-nav .step-label {
+    align-items: flex-start !important;
+    text-align: left !important;
+  }
+  body.application-form-page .application-steps .steps-nav .step-label strong:nth-child(2) {
+    color: #64748b !important;
+  }
+  body.application-form-page .application-steps .steps-nav a.is-current {
+    position: relative !important;
+    background: #e7efff !important;
+  }
+  body.application-form-page .application-steps .steps-nav a.is-current::before {
+    content: "" !important;
+    position: absolute !important;
+    top: 8px !important;
+    bottom: 8px !important;
+    left: 0 !important;
+    width: 4px !important;
+    border-radius: 0 4px 4px 0 !important;
+    background: var(--blue) !important;
+  }
+  body.application-form-page .application-steps .steps-nav a.is-complete:not(.is-current) {
+    border-color: #c6e6d2 !important;
+    background: #f2faf5 !important;
+    color: #214c35 !important;
+  }
+  body.application-form-page .application-steps .steps-nav a.is-complete:not(.is-current) > .step-number {
+    border-color: #16834a !important;
+    background: #16834a !important;
+    color: #fff !important;
+  }
+  body.application-form-page .application-steps .steps-nav a.is-complete:not(.is-current) > .step-number > .step-number-text {
+    display: none !important;
+  }
+  body.application-form-page .application-steps .steps-nav a.is-complete:not(.is-current) > .step-number > .step-number-check {
+    display: grid !important;
+    width: 100% !important;
+    height: 100% !important;
+    place-items: center !important;
+    color: inherit !important;
+    font-size: 18px !important;
+  }
+  body.application-form-page .application-steps .steps-nav a.is-complete:not(.is-current) > .step-state .step-status-done {
+    display: none !important;
   }
 }
