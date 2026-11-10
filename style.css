@@ -8630,8 +8630,11 @@ body.verify-page #oscaLanguageToggle {
 #osca-chatbot #oscaLanguageToggle {
   position: relative !important;
   inset: auto !important;
-  display: grid !important;
-  place-items: center !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 1px !important;
   box-sizing: border-box !important;
   flex: 0 0 64px !important;
   width: 64px !important;
@@ -8664,6 +8667,16 @@ body.verify-page #oscaLanguageToggle {
   line-height: 1 !important;
 }
 
+#osca-chatbot #oscaLanguageToggle .osca-language-code {
+  display: block !important;
+  color: #ffffff !important;
+  font-family: inherit !important;
+  font-size: 10px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.08em !important;
+  line-height: 1 !important;
+}
+
 #osca-chatbot #oscaLanguageToggle:focus-visible {
   outline: 3px solid #f5c542 !important;
   outline-offset: 4px !important;
@@ -8686,5 +8699,9 @@ body.verify-page #oscaLanguageToggle {
 
   #osca-chatbot #oscaLanguageToggle .material-symbols-outlined {
     font-size: 27px !important;
+  }
+
+  #osca-chatbot #oscaLanguageToggle .osca-language-code {
+    font-size: 9px !important;
   }
 }
