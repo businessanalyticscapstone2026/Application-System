@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <clipPath id="circle">
+      <circle cx="64" cy="64" r="62"/>
+    </clipPath>
+  </defs>
+  <circle cx="64" cy="64" r="64" fill="#ffffff"/>
+  <image href="/OSCA%20Bauan%20Logo.jpg" x="2" y="2" width="124" height="124" preserveAspectRatio="xMidYMid slice" clip-path="url(#circle)"/>
+</svg>
