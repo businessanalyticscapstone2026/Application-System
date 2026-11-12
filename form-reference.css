@@ -427,7 +427,7 @@ body { margin: 0; background: var(--paper); color: var(--ink); font-family: "Atk
 .row.two-thirds { grid-template-columns:1.6fr 0.9fr; }
 .row.one { grid-template-columns:1fr; }
 .row.one.narrow { max-width:360px; }
-.row.five { grid-template-columns:repeat(5,1fr); }
+.row.four { grid-template-columns:repeat(4,1fr); }
 .field { display:flex; flex-direction:column; gap:6px; min-width:0; }
 .field label { color:var(--blue-dark); font-size:0.78rem; font-weight:700; }
 .field small { color:#7a8aa0; font-size:0.68rem; line-height:1.4; }
@@ -540,7 +540,7 @@ body { margin: 0; background: var(--paper); color: var(--ink); font-family: "Atk
 
 @media (max-width: 900px) {
   .form-wrapper { grid-template-columns:1fr; }
-  .row.three, .row.two, .row.two-thirds, .row.five { grid-template-columns:1fr; }
+  .row.three, .row.two, .row.two-thirds, .row.four { grid-template-columns:1fr; }
   .upload-item { grid-template-columns:1fr; }
   .checkbox-options { grid-template-columns:1fr; }
   .review-grid { grid-template-columns:1fr; }
@@ -655,7 +655,7 @@ body.application-form-page .supporting-document-select {
   body.application-form-page .form-step-panel > .section-block { padding: 14px; }
   body.application-form-page .form-step-panel[data-step="0"] .row.three,
   body.application-form-page .form-step-panel[data-step="0"] .row.two-thirds,
-  body.application-form-page .form-step-panel[data-step="0"] .row.five,
+  body.application-form-page .form-step-panel[data-step="0"] .row.four,
   body.application-form-page .row.two { grid-template-columns: 1fr; }
   body.application-form-page .checkbox-options { grid-template-columns: 1fr; }
   body.application-form-page .form-step-heading { flex-wrap: wrap; }
@@ -1531,7 +1531,7 @@ body.application-form-page .mobile-sticky-area { display: none; }
   body.application-form-page .form-step-panel[data-step="0"] .field small { color: #596273; font-size: 13px; }
   body.application-form-page .form-step-panel[data-step="0"] .ghost-label { color: #172c59; }
   body.application-form-page .form-step-panel[data-step="0"] .id-numbers-row .ghost-label { color: #172c59; }
-  body.application-form-page .form-step-panel[data-step="0"] .row.five { grid-template-columns: repeat(5, minmax(0,1fr)); }
+  body.application-form-page .form-step-panel[data-step="0"] .row.four { grid-template-columns: repeat(4, minmax(0,1fr)); }
   body.application-form-page .form-step-actions { display: flex; justify-content: space-between; margin-top: 14px; padding-top: 12px; }
   body.application-form-page .form-step-actions .form-step-next { min-width: 116px; min-height: 42px; padding: 8px 16px; }
   body.application-form-page .mobile-action-bar { display: none !important; }
