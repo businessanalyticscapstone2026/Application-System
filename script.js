@@ -1907,7 +1907,6 @@ async function loadApplicationForEditing() {
       }
     }
     setValue("occupation", application.occupation);
-    setValue("id-osca", application.osca_id_number);
     setValue("id-sss", application.sss_id_number);
     setValue("id-philhealth", application.philhealth_id_number);
     setValue("id-gsis", application.gsis_id_number);
@@ -4392,7 +4391,6 @@ function setupFormSubmitConfirmation() {
       religion: toNull(getInputValue('religion')),
       religion_specify: getSelectSpecifyValue('religion'),
       occupation: toNull(getInputValue('occupation')),
-      osca_id_number: toNull(getInputValue('id-osca')),
       sss_id_number: toNull(getInputValue('id-sss')),
       philhealth_id_number: toNull(getInputValue('id-philhealth')),
       gsis_id_number: toNull(getInputValue('id-gsis')),
@@ -4593,7 +4591,6 @@ function setupFormSubmitConfirmation() {
         religion: toNull(getInputValue('religion')),
         religion_specify: getSelectSpecifyValue('religion'),
         occupation: toNull(getInputValue('occupation')),
-        osca_id_number: toNull(getInputValue('id-osca')),
         sss_id_number: toNull(getInputValue('id-sss')),
         philhealth_id_number: toNull(getInputValue('id-philhealth')),
         gsis_id_number: toNull(getInputValue('id-gsis')),
