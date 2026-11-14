@@ -4702,25 +4702,19 @@ body.homepage-page .homepage-footer button:focus-visible {
 
   body.homepage-page .homepage-footer-nav {
     width: 100%;
-    flex-wrap: nowrap;
-    justify-content: flex-start;
-    gap: 24px;
-    padding-right: 88px;
-    overflow-x: auto;
-    scrollbar-width: none;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  body.homepage-page .homepage-footer-nav::-webkit-scrollbar {
-    display: none;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 14px;
+    padding-right: 0;
+    overflow-x: visible;
   }
 
   body.homepage-page .homepage-footer-nav a {
     min-width: 0;
     gap: 4px;
-    padding: 0 7px;
+    padding: 6px 8px;
     font-size: 12px;
-    white-space: nowrap;
+    white-space: normal;
   }
 
   body.homepage-page .homepage-footer-nav .material-symbols-outlined {
@@ -4741,13 +4735,12 @@ body.homepage-page .homepage-footer button:focus-visible {
   }
 
   body.homepage-page .homepage-footer-nav {
-    gap: 18px;
-    padding-right: 78px;
+    gap: 8px 10px;
   }
 
   body.homepage-page .homepage-footer-nav a {
     gap: 3px;
-    padding: 0 5px;
+    padding: 6px 6px;
     font-size: 11px;
   }
 
