@@ -1217,6 +1217,13 @@
         function cancelApplication() {
           const finishCancellation = () => {
             clearSavedDraft();
+            // Section progress is stored separately in sessionStorage.
+            // Reset it so the next application starts with no completed steps.
+            try {
+              sessionStorage.removeItem(navigationProgressKey);
+            } catch (error) {
+              console.error("Unable to clear the saved application section progress.", error);
+            }
             window.location.href = "index.html";
           };
           if (typeof showConfirmationModal === "function") {

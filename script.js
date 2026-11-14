@@ -3592,6 +3592,19 @@ function getApplicationDraftKey() {
     (applicationId || "new");
 }
 
+function getApplicationNavigationProgressKey() {
+  const params =
+    new URLSearchParams(window.location.search);
+
+  const applicationId = params.get("id");
+  const sessionId = params.get("session");
+  const mode = params.get("mode") || "new";
+
+  return "applicationFormNavigation:" +
+    mode + ":" +
+    (applicationId || sessionId || "new");
+}
+
 function clearApplicationDraft() {
   // Let the form page cancel any pending draft save before we remove it.
   document.dispatchEvent(
@@ -3605,6 +3618,20 @@ function clearApplicationDraft() {
   } catch (error) {
     console.error(
       "Unable to clear the saved application draft.",
+      error
+    );
+  }
+
+  // Section progress lives in sessionStorage, separately from the draft.
+  // Clear it too so a cancelled or submitted application starts at step 1
+  // instead of restoring previously checked sections.
+  try {
+    window.sessionStorage.removeItem(
+      getApplicationNavigationProgressKey()
+    );
+  } catch (error) {
+    console.error(
+      "Unable to clear the saved application section progress.",
       error
     );
   }

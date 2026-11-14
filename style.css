@@ -8183,6 +8183,13 @@ body.application-form-page textarea {
   box-sizing: border-box;
 }
 
+/* The form-page input display rule above overrides the browser's
+   [hidden] style, so keep generated "Please specify" fields hidden
+   until their matching option is selected. */
+body.application-form-page .specify-input[hidden] {
+  display: none !important;
+}
+
 body.application-form-page input[type="date"] {
   -webkit-appearance: none;
   appearance: none;
