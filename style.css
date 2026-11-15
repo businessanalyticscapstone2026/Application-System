@@ -6076,6 +6076,12 @@ body.track-status-open {
   padding-right: var(--track-status-scrollbar-width, 0px);
 }
 
+/* Keep the host page's chatbot and language switcher above the tracking modal
+   so the single visible set of controls stays usable while the modal is open. */
+body.track-status-open #osca-chatbot {
+  z-index: 10001;
+}
+
 body.homepage-page.track-status-open .fixed-header {
   right: auto !important;
   width: calc(100% - var(--track-status-scrollbar-width, 0px)) !important;
@@ -6102,6 +6108,15 @@ body.homepage-page.track-status-open .fixed-header {
   height: 100%;
   border: 0;
   background: transparent;
+}
+
+/* The host homepage keeps its floating chatbot and language switcher on top
+   of the modal. Hide the embedded tracking page's duplicates so only one set
+   of controls is shown and both controls act on the modal content too. */
+body.track-status-embedded #osca-chatbot,
+body.track-status-embedded #osca-chatbot #oscaLanguageToggle,
+body.track-status-embedded #oscaLanguageToggle {
+  display: none !important;
 }
 
 body.homepage-page #about.about-section {

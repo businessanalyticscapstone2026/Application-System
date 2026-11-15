@@ -5887,6 +5887,17 @@ function setupTrackStatusModal() {
     if (!frameDocument?.body) return;
     frameDocument.documentElement.style.setProperty("background", "transparent", "important");
     frameDocument.body.style.setProperty("background", "transparent", "important");
+    // The host page already has the floating chatbot and language switcher.
+    // Mark the embedded page so its own copies are hidden while in the modal.
+    frameDocument.body.classList.add("track-status-embedded");
+    applyLanguageToFrame();
+  };
+
+  const applyLanguageToFrame = function () {
+    const frameWindow = frame?.contentWindow;
+    if (!frameWindow || typeof frameWindow.oscaSetLanguage !== "function") return;
+    const lang = document.documentElement.lang === "fil" ? "tl" : "en";
+    frameWindow.oscaSetLanguage(lang);
   };
 
   const resetTrackingFrame = function () {
@@ -5923,7 +5934,15 @@ function setupTrackStatusModal() {
     document.body.style.setProperty("--track-status-scrollbar-width", scrollbarWidth + "px");
     modal.hidden = false;
     document.body.classList.add("track-status-open");
+    applyLanguageToFrame();
   };
+
+  // Keep the embedded tracking page in the same language as the host page
+  // when the host page's language switcher is used while the modal is open.
+  document.addEventListener("click", function (event) {
+    if (!event.target.closest || !event.target.closest("#oscaLanguageToggle")) return;
+    applyLanguageToFrame();
+  });
 
   document.querySelectorAll('a[href="trackstatus.html"]').forEach(function (link) {
     link.addEventListener("click", openModal);
