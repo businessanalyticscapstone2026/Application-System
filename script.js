@@ -2671,9 +2671,12 @@ function setupFaceCamera() {
         // ---------------------------------------------
 
         try {
-          const [storedId, storedFace] = await Promise.all([
+          const latestPhotoInput = document.getElementById("upload-latest-photo");
+          const latestPhotoFile = latestPhotoInput?.files?.[0] || null;
+          const [storedId, storedFace, storedLatestPhoto] = await Promise.all([
             uploadFileToPrivateStorage(validIdFile),
-            uploadFileToPrivateStorage(capturedFile)
+            uploadFileToPrivateStorage(capturedFile),
+            latestPhotoFile ? uploadFileToPrivateStorage(latestPhotoFile) : Promise.resolve(null)
           ]);
           const response = await fetch("/api/applications/verify-face", {
             method: "POST",
@@ -2681,7 +2684,8 @@ function setupFaceCamera() {
             body: JSON.stringify({
               files: {
                 valid_id_front: [storedId],
-                verification_photo: [storedFace]
+                verification_photo: [storedFace],
+                ...(storedLatestPhoto ? { latest_photo: [storedLatestPhoto] } : {})
               }
             })
           });
@@ -2731,14 +2735,18 @@ function setupFaceCamera() {
               );
 
 
+            const additionalReviewRequired = result.requiresAdditionalReview === true;
             setStatus(
-              "Face verified successfully."
+              additionalReviewRequired
+                ? "Possible face match found. Staff review is required."
+                : "Face verified successfully."
             );
 
-
             setVerificationResult(
-              "✓ Face verified successfully.",
-              "success"
+              additionalReviewRequired
+                ? "✓ Your latest photo appears to match. Your application will be flagged for additional staff review."
+                : "✓ Face verified successfully.",
+              additionalReviewRequired ? "loading" : "success"
             );
 
 
