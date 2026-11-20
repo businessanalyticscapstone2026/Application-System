@@ -1178,6 +1178,13 @@
           header.className = "form-step-heading";
           header.innerHTML = `<span>STEP 0${index + 1}</span><span class="form-step-total">06</span><span class="form-required-legend"><i></i> Required fields</span>`;
           panel.prepend(header);
+          const draftBannerHtml = `
+            <span class="material-symbols-outlined" aria-hidden="true">cloud_done</span>
+            <span class="form-step-draft-copy">
+              <strong>Auto-draft</strong>
+              <small>Your information is saved as a draft automatically unless you cancel your application.</small>
+            </span>
+          `;
           const actions = document.createElement("div");
           actions.className = "form-step-actions";
           const back = document.createElement("button");
@@ -1192,6 +1199,13 @@
             showStep(index - 1);
           });
           actions.append(back);
+          {
+            const draftBanner = document.createElement("div");
+            draftBanner.className = "draft-banner form-step-draft-banner";
+            draftBanner.setAttribute("role", "note");
+            draftBanner.innerHTML = draftBannerHtml;
+            actions.append(draftBanner);
+          }
           {
             const next = document.createElement("button");
             next.type = "button";
@@ -1212,6 +1226,13 @@
             actions.append(cancel);
           }
           panel.append(actions);
+          {
+            const inlineDraftBanner = document.createElement("div");
+            inlineDraftBanner.className = "draft-banner form-step-draft-banner form-step-draft-banner--inline";
+            inlineDraftBanner.setAttribute("role", "note");
+            inlineDraftBanner.innerHTML = draftBannerHtml;
+            panel.append(inlineDraftBanner);
+          }
         });
 
         function cancelApplication() {

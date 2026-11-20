@@ -68,6 +68,7 @@
     "Personal details":"Personal na impormasyon","Personal":"Personal","details":"na impormasyon","Family":"Pamilya","composition":"komposisyon",
     "Association":"Samahan","membership":"pagiging miyembro","Income":"Kita","& living":"at tirahan","Health":"Kalusugan","& community":"at komunidad","Documents":"Mga Dokumento","& consent":"at pahintulot",
     "Draft saved":"Na-save ang draft","Application sections":"Mga seksyon ng aplikasyon",
+    "Auto-draft":"Auto-draft","Your information is saved as a draft automatically unless you cancel your application.":"Awtomatikong nasesave ang iyong impormasyon bilang draft maliban na lang kung kanselahin mo ang aplikasyon.",
     "Your application is sent to OSCA Bauan.":"Naipadala na ang iyong aplikasyon sa OSCA Bauan.",
     "Your information and uploaded documents are reviewed by OSCA. Keep your Application ID and bring original documents when requested.":"Susuriin ng OSCA ang iyong impormasyon at mga na-upload na dokumento. Itago ang iyong Application ID at dalhin ang mga orihinal na dokumento kapag hiniling.",
     "Surname":"Apelyido","Firstname":"Pangalan","Middlename":"Gitnang pangalan","Date of Birth":"Petsa ng kapanganakan","Age":"Edad","Sex":"Kasarian","Select sex":"Pumili ng kasarian",

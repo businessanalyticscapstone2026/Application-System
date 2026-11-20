@@ -411,6 +411,15 @@ body { margin: 0; background: var(--paper); color: var(--ink); font-family: "Atk
 .step-progress.six span.is-next { background:#ffd1d4; }
 .draft-banner { display:flex; align-items:center; gap:10px; margin-bottom:14px; padding:10px 14px; border-radius:10px; background:#f0fdf4; border:1px solid #bbf7d0; color:#065f46; font-size:0.78rem; font-weight:700; }
 .draft-banner button { margin-left:auto; padding:6px 12px; border-radius:999px; border:1px solid #a7f3d0; background:#fff; color:#065f46; font-weight:800; font-size:0.70rem; cursor:pointer; }
+body.application-form-page .form-step-draft-banner { flex:0 1 auto; max-width:520px; margin:0; }
+body.application-form-page .form-step-draft-banner > .material-symbols-outlined { flex:0 0 auto; color:#1c6b54; font-size:20px; }
+body.application-form-page .form-step-draft-copy { display:flex; min-width:0; flex-direction:column; gap:2px; line-height:1.35; }
+body.application-form-page .form-step-draft-copy strong { font-size:0.78rem; font-weight:800; }
+body.application-form-page .form-step-draft-copy small { color:#176b45; font-size:0.72rem; font-weight:600; white-space:normal; }
+body.application-form-page .form-step-draft-banner--inline { display:none; max-width:none; margin:14px 0 0; }
+@media (max-width: 1100px) {
+  body.application-form-page .form-step-draft-banner--inline { display:flex; }
+}
 .form-step-panel { animation: rise-in 320ms ease both; }
 @keyframes rise-in { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
 
