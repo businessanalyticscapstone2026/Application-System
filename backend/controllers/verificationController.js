@@ -67,10 +67,13 @@ export async function verifyFace(req, res) {
         const files = await getUploadedFiles(req);
         const source = files.valid_id_front?.[0];
         const target = files.verification_photo?.[0];
-        const { status, result } = await forwardMultipart("face", "verify-face", {}, {
+        const latestPhoto = files.latest_photo?.[0];
+        const faceFiles = {
             source_image: source,
             target_image: target
-        });
+        };
+        if (latestPhoto?.buffer) faceFiles.latest_photo_image = latestPhoto;
+        const { status, result } = await forwardMultipart("face", "verify-face", {}, faceFiles);
         return res.status(status).json(result);
     } catch (error) {
         return res.status(error.status || 502).json({ success: false, verified: false, livenessPassed: false, message: error.message || "Face verification failed." });
