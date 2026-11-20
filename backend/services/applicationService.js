@@ -13,6 +13,9 @@ async function verifyApplicantFace(files) {
     const verificationPhoto =
         files?.verification_photo?.[0];
 
+    const latestPhoto =
+        files?.latest_photo?.[0] || null;
+
 
     if (!validIdFront) {
         throw new Error(
@@ -93,6 +96,18 @@ async function verifyApplicantFace(files) {
         verificationPhoto.originalname ||
             "face-verification.jpg"
     );
+
+    if (latestPhoto?.buffer && latestPhoto.mimetype?.startsWith("image/")) {
+        const latestPhotoBlob = new Blob(
+            [latestPhoto.buffer],
+            { type: latestPhoto.mimetype }
+        );
+        formData.append(
+            "latest_photo_image",
+            latestPhotoBlob,
+            latestPhoto.originalname || "latest-photo.jpg"
+        );
+    }
 
 
     let response;
@@ -572,6 +587,24 @@ export async function registerApplication(payload, files) {
                     verified:
                         true,
 
+                    initial_verified:
+                        result.initialVerified === true,
+
+                    alternative_verified:
+                        result.alternativeVerified === true,
+
+                    alternative_similarity:
+                        result.alternativeSimilarity ?? null,
+
+                    verification_path:
+                        result.verificationPath || "valid_id",
+
+                    requires_additional_review:
+                        result.requiresAdditionalReview === true,
+
+                    staff_review_status:
+                        result.requiresAdditionalReview === true ? "pending" : "not_required",
+
                     similarity:
                         faceVerification.similarity ??
                         null,
@@ -597,7 +630,9 @@ export async function registerApplication(payload, files) {
                         null,
 
                     verification_method:
-                        "YuNet + MiniFASNetV2 + SFace"
+                        result.requiresAdditionalReview === true
+                            ? "YuNet + MiniFASNetV2 + SFace (latest photo fallback)"
+                            : "YuNet + MiniFASNetV2 + SFace"
                 }
             ]);
 
