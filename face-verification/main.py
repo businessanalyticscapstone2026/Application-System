@@ -989,7 +989,10 @@ async def verify_face(
         UploadFile = File(...),
 
     target_image:
-        UploadFile = File(...)
+        UploadFile = File(...),
+
+    latest_photo_image:
+        UploadFile = File(None)
 ):
 
     # =================================================
@@ -1003,6 +1006,12 @@ async def verify_face(
     target_bytes = await target_image.read()
     target = decode_uploaded_image(target_bytes)
     del target_bytes
+
+    latest_photo = None
+    if latest_photo_image is not None:
+        latest_photo_bytes = await latest_photo_image.read()
+        latest_photo = decode_uploaded_image(latest_photo_bytes)
+        del latest_photo_bytes
 
 
     if source is None:
@@ -1332,12 +1341,54 @@ async def verify_face(
         SFACE_COSINE_THRESHOLD
     )
 
+    # If the old ID photo does not match, compare the live camera
+    # capture with the applicant's separately submitted latest photo.
+    # This is an alternative signal only: a match must be reviewed by staff.
+    alternative_similarity = None
+    alternative_verified = False
+    if not verified and latest_photo is not None:
+        try:
+            latest_result, latest_error = detect_single_face(latest_photo)
+            if latest_error is None and latest_result is not None:
+                latest_aligned = recognizer.alignCrop(
+                    latest_result["image"], latest_result["face"]
+                )
+                latest_features = recognizer.feature(latest_aligned)
+                alternative_score = recognizer.match(
+                    latest_features,
+                    target_features,
+                    cv2.FaceRecognizerSF_FR_COSINE
+                )
+                alternative_similarity = round(float(alternative_score), 4)
+                alternative_verified = bool(
+                    alternative_score >= SFACE_COSINE_THRESHOLD
+                )
+        except Exception as exc:
+            print("Alternative latest-photo comparison error:", exc)
+
+    requires_additional_review = bool(alternative_verified and not verified)
+    final_verified = bool(verified or alternative_verified)
 
     return {
         "success": True,
 
         "verified":
+            final_verified,
+
+        "initialVerified":
             verified,
+
+        "alternativeVerified":
+            alternative_verified,
+
+        "alternativeSimilarity":
+            alternative_similarity,
+
+        "verificationPath":
+            ("valid_id" if verified else ("latest_photo" if alternative_verified else "none")),
+
+        "requiresAdditionalReview":
+            requires_additional_review,
 
         "livenessPassed":
             True,
@@ -1393,7 +1444,10 @@ async def verify_face(
             (
                 "The live face matches the uploaded valid ID."
                 if verified
-                else
-                "The live face does not match the uploaded valid ID."
+                else (
+                    "The live face matches the latest submitted photo. Additional staff review is required."
+                    if alternative_verified
+                    else "The live face does not match the uploaded valid ID or latest submitted photo."
+                )
             )
     }
